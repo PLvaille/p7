@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- tester sans bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="./main.css">
+
+
+    
+
+
+    <title>Groupomania</title>
+</head>
+
+<body>
+    <div id="topContainer" class="container-fluid">
+        
+            <h1 class="text-center display-1 ">Groupomaniabook</h1>
+       
+    <div class="row">
+            <div class="col-1 id="profile-container">
+
+                <img class="profile-img"
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Christophe_Lambert_et_Jean_Dujardin_%28Cropped%29.jpg/220px-Christophe_Lambert_et_Jean_Dujardin_%28Cropped%29.jpg"
+                    alt="Photo de jean dujardin">
+                <p>Prénom_user</p>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        Profil
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Regular link</a></li>
+                        <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Disabled
+                                link</a></li>
+                        <li><a class="dropdown-item" href="#">Another link</a></li>
+                    </ul>
+                </div>
+
+            </div> <!-- profile-container -->
+
+            <div class="col-8 col-md-4 container">
+                <form class="form" action="post">
+                    <input type="text" max-length="100" class="form-control" name="title " placeholder="titre">
+                    <textarea type="text" max-length="500" class="form-control" name="text"
+                        placeholder="Dites quelque chose..."></textarea>
+                    <input class="form-control" type="file" id="formFile">
+                    <div class="container-btn">
+                        <button class="btn-success col-6 col-lg-4" id="publishBtn">poster</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+      
+
+
+
+    </div>
+
+    <div class="container-fluid" id="mainContainer">
+        <h2 class="text-center display-3 mt-1" id="titleNews">Les news</h2>
+        <div class="container" id="dynamicFeed">
+
+
+            <div class="col-1">
+
+            </div>
+
+            <div class="card col-10">
+                <div class="card-header">
+                    <img class="card-img"
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Christophe_Lambert_et_Jean_Dujardin_%28Cropped%29.jpg/220px-Christophe_Lambert_et_Jean_Dujardin_%28Cropped%29.jpg"
+                        alt="Photo de jean dujardin">
+                    <span class="author">Jean dujardin </span>
+                    <p class="publishDate ">le 05/04/2022</p>
+
+                </div>
+                <div class="card-body container">
+                    <h3 class="card-title">Bonjour</h3>
+                    <img src="https://www.referenseo.com/wp-content/uploads/2019/03/image-attractive.jpg"
+                        alt="elephant qui vole">
+
+                    <p class="card-text">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quos
+                        excepturi Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui quisquam, ad eius eos cum
+                        corporis quidem omnis? Iure ipsum voluptatum autem ex odit? Tenetur rem exercitationem quia
+                        eligendi. Ullam praesentium quo consequuntur facilis itaque necessitatibus exercitationem hic
+                        dolorem iure perferendis laudantium, fugit aperiam!
+                        sunt, reprehenderit voluptas vero quibusdam dolorum quo labore provident officia.
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="col-1"></div>
+
+
+
+            <div class="col-1"> </div>
+
+            <div class="card col-10">
+                <div class="card-header">
+                    <img class="card-img"
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Christophe_Lambert_et_Jean_Dujardin_%28Cropped%29.jpg/220px-Christophe_Lambert_et_Jean_Dujardin_%28Cropped%29.jpg"
+                        alt="Photo de jean dujardin">
+                    <span class="author">Jean dujardin </span>
+                    <p class="publishDate ">le 05/04/2022</p>
+
+                </div>
+                <div class="card-body container">
+                    <h3 class="card-title">Bonjour</h3>
+                    <img src="https://www.referenseo.com/wp-content/uploads/2019/03/image-attractive.jpg"
+                        alt="elephant qui vole">
+
+                    <p class="card-text">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quos
+                        excepturi Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui quisquam, ad eius
+                        eos cum corporis quidem omnis? Iure ipsum voluptatum autem ex odit? Tenetur rem
+                        exercitationem quia eligendi. Ullam praesentium quo consequuntur facilis itaque
+                        necessitatibus exercitationem hic dolorem iure perferendis laudantium, fugit aperiam!
+                        sunt, reprehenderit voluptas vero quibusdam dolorum quo labore provident officia.
+                    </p>
+
+                </div>
+            </div>
+            <div class="col-1"></div>
+
+
+
+        </div>
+
+
+        <script src="./main.js"></script>
+</body>
+
+</html>

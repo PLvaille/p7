@@ -1,0 +1,84 @@
+#topContainer {
+    background: linear-gradient(rgba(161, 161, 245, 0.76), rgb(167, 167, 201));
+    padding-bottom: 8px;
+}
+
+.card-img {
+    max-width: 6vh;
+    max-height: 6vh;
+    object-fit: cover;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+}
+
+.card-body img {
+    float:left;
+    width: 30vh;
+    height: 30vh;
+    max-width: 30vh;
+    max-height: 30vh;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.author {
+    font-size: 3vh;
+    margin: 0px 20px;
+}
+
+.publishDate{
+    margin:0;
+   font-size: 1.8vh;
+}
+
+.card {
+    width:100%;
+    margin:20px 0 20px 0;
+}
+
+#publishBtn {
+    border-radius: 6px;
+    padding:4px 0;
+    text-align: center;
+}
+
+.container-btn {
+    display: flex;
+    justify-content: center;
+}
+
+form input, form textarea {
+    margin-bottom: 6px;
+}
+form input:first-child {
+    margin-top : 10px;
+}
+
+#titleNews {
+    margin-top : 4px;
+}
+
+#mainContainer {
+    
+    border-top: 1px solid grey;
+    background: linear-gradient(rgba(206, 110, 0, 0.37), rgba(148, 10, 10, 0.281));
+}
+
+
+#profile-container {
+   margin:0 auto !important;
+}
+
+.profile-img {
+    border-radius: 50% 50%;
+    width: 4rem;
+    height: 4rem;
+    object-fit: cover;
+    max-width: 4rem;
+}
+
+
+/* Breakpoint à 400px */
