@@ -61,8 +61,7 @@ form input:first-child {
     margin-top : 4px;
 }
 
-#mainContainer {
-    
+#mainContainer { 
     border-top: 1px solid grey;
     background: linear-gradient(rgba(206, 110, 0, 0.37), rgba(148, 10, 10, 0.281));
 }

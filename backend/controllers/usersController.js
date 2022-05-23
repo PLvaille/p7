@@ -51,8 +51,8 @@ exports.createNewUser = async (req, res) => {
                 else {
                     if (req.file) {
                         image = `${req.protocol}://${req.get('host')}/users-images/${req.file.filename}`;
-                        console.log("--- image --- l52")
-                        console.log(image);
+                        // console.log("--- image --- l 54")
+                        // console.log(image);
                     }
                     // objet user complet à envoyer en bdd
                     const user = {
