@@ -136,6 +136,8 @@ exports.login = async (req, res) => {
     }
 };
 
+
+
 // renvoi soit toutes les infos si c'est le bon user soit infos partiels
 exports.getUserById = async (req, res) => {
     const requestedid = req.params.id;

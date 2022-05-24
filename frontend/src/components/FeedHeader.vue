@@ -1,8 +1,10 @@
 <template>
   <div class="header">
-    <h1 class="header--welcome titre" id="welcome-msg">{User}, quoi de neuf aujourd'hui ?</h1>
-    <div class="header--main">
-      <aside class="header--container">
+    <div class="header--img"></div>
+    <!-- <div class="header--main"> -->
+    <!--   <h1 class="header--welcome titre" id="welcome-msg">{User}, quoi de neuf aujourd'hui ?</h1>
+    
+     <aside class="header--container">
         <div class="newsContainer">
           <h4>Les posts les plus commentés</h4>
           <ul>
@@ -47,8 +49,8 @@
             </li>
           </ul>
         </div>
-      </aside>
-    </div>
+      </aside> -->
+
 
 
 
@@ -59,8 +61,9 @@
     </nav>
 
 
+    <!-- </div> -->
+    <hr>
   </div>
-  <hr>
 </template>
 
 <script>
@@ -70,14 +73,21 @@ export default {
 </script>
 <style scoped lang="scss">
 .header {
-  // background-image: url("../assets/logo.png");
-  // background-size : 200px;
-  // background-color : transparent;
+  &--img {
+    margin: 0 auto;
+    width: 200px;
+    height: 200px;
+    background-image: url("../assets/logo.png");
+    background-size: 200px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+  }
 
   display: flex;
   flex-direction: column;
 
   &--main {
+
     margin-block: 0;
     margin: 0 auto;
     margin-top: 40px;
@@ -96,7 +106,7 @@ export default {
 
   &--welcome {
     left: 30px;
-    max-width:800px;
+    max-width: 800px;
     width: 60%;
     margin: 0 auto;
     margin-top: -30px;
@@ -134,10 +144,11 @@ export default {
 
 aside {
   width: 200px !important;
- & h4{
-    margin:4px 0;
-    color :royalblue;
- }
+
+  & h4 {
+    margin: 4px 0;
+    color: royalblue;
+  }
 
   & .newUsers,
   .newsContainer {
@@ -175,21 +186,23 @@ aside {
     object-fit: cover;
     border-radius: 50%;
     border: 1px black solid;
-    margin-top : 4px;
+    margin-top: 4px;
+
     &--container {
       display: flex;
       height: 30%;
-        overflow:hidden;
+      overflow: hidden;
+
       & p {
-    
+
 
         margin: 0 0 0 4px;
         text-align: left;
       }
 
       &--name {
-        
-        text-overflow:ellipsis;
+
+        text-overflow: ellipsis;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
@@ -212,21 +225,25 @@ aside {
 
 @media screen and (max-width: 500px) {
   .header--welcome {
-    width:80%;
+    width: 80%;
   }
 
-   #logo {
+  #logo {
     max-width: 100px;
     max-height: 100px;
   }
+
   aside {
     max-width: 160px !important;
-    min-width:100px;
+    min-width: 100px;
+
     & li {
-    font-size:12px;}
+      font-size: 12px;
+    }
+
     & img {
-      width:30px;
-      height:30px;
+      width: 30px;
+      height: 30px;
     }
   }
 }

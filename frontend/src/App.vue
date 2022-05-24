@@ -37,7 +37,7 @@ export default {
 
 body{
   position: relative;
-  background: linear-gradient(to left,royalblue, white, white, white, white, royalblue);
+  background: linear-gradient(to left,rgb(56, 154, 214), white, white, white, white, rgb(56, 154, 214));
 }
 
 #app {

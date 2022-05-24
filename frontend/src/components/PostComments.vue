@@ -2,26 +2,24 @@
     <div class="post--reactions">
         <span class="post--reactions--likes" id="likes--count">{{ likesCounter }} 👍🏼</span>
     </div>
-    <div class="display--comments" id="lessComments" v-if="displayComments" @click="displayAllComments" v-bind:style="[displayAllComments ?
-    { 'background': 'rgb(129, 175, 254)' } :
-    {}]">
+    <div class="display--comments--on" id="lessComments" v-if="displayComments" @click="displayAllComments"
+        v-bind:style="[displayAllComments ?
+        { 'background': 'linear-gradient(to top, rgb(124, 205, 255), rgb(56, 154, 214), white)' } : {}]">
         Réduire <br>⬆️
     </div>
-    <div class="display--comments" v-if="!displayComments" @click="displayAllComments">
+    <div class="display--comments--off" v-if="!displayComments" @click="displayAllComments">
 
-        <span v-if="!comments[0]">aucun</span>
+        <span v-if="!comments[0]">Aucun</span>
         <span v-else-if="comments.length >= 1">{{ comments.length }}</span> commentaire<span
-            v-if="comments.length > 1">s</span> 💬
-        <br> ⬇️
+            v-if="comments.length > 1">s</span> <span>💬</span>
+        <br> <span>⬇️</span>
     </div>
     <div class="comments--container" v-if="displayComments" :style="[displayAllComments ?
-    { 'background': 'linear-gradient(rgb(129, 175, 254), white)' } :
-    {}]">
+    { 'background': 'linear-gradient(rgb(124, 205, 255), white)' } : {}]">
         <div class="singlecomment" id="commentId" v-for:="comment in comments" :key="comments.comment_id">
             <div class="comment--user">
-                <img id="user-image" class="comment--user--img"
-                    :src="comment.user_img"
-                    :alt="'photo de profil de ' + comment.user_prenom + ' ' + comment.user_nom "/>
+                <img id="user-image" class="comment--user--img" :src="comment.user_img"
+                    :alt="'photo de profil de ' + comment.user_prenom + ' ' + comment.user_nom" />
                 <div class="comment--user--info">
                     <p class="comment--user--info--firstname" id="user-prenom"> {{ comment.user_prenom }} </p>
                     <p class="comment--user--info--name" id="user-nom">{{ comment.user_nom }}</p>
@@ -89,7 +87,7 @@ export default {
                 .then(res => {
                     if (res.data.length > 0) {
                         this.comments = res.data;
-                     //   console.log(JSON.stringify(this.comments) + ' le com ' + this.id);
+                        //   console.log(JSON.stringify(this.comments) + ' le com ' + this.id);
                     }
                 })
                 .catch(error => {
@@ -97,7 +95,7 @@ export default {
                 });
 
             //console.log("===== thiscomments ========");
-            console.log(this.comments);
+            //console.log(this.comments);
         },
         displayAllComments() { this.displayComments = !this.displayComments; },
     },
@@ -109,6 +107,37 @@ export default {
 </script>
 
 <style lang="scss">
+.display--comments {
+    & span {
+        cursor: pointer;
+    }
+
+    &--on {
+        padding: 12px;
+
+        &:hover {
+            cursor: pointer;
+            text-decoration: underline;
+            //background surligné déployé
+            background: linear-gradient(white, rgb(56, 154, 214), rgb(56, 154, 214), rgb(124, 205, 255)) !important;
+        }
+    }
+
+    &--off {
+        margin-top: 4px;
+        padding: 4px 0px;
+        border-top: solid 1px #999;
+        cursor: pointer;
+        //background de base
+        background: linear-gradient(rgb(56, 154, 214), rgb(56, 154, 214), rgb(56, 154, 214), white);
+
+        &:hover {
+            text-decoration: underline;
+            background: linear-gradient(rgb(56, 154, 214), rgb(56, 154, 214), rgb(65, 182, 255), white);
+        }
+    }
+}
+
 .singlecomment {
     background: rgb(219, 233, 253);
     margin: 2px 4px;
@@ -118,6 +147,10 @@ export default {
 }
 
 .comment {
+    &--container {
+        background: linear-gradient(rgb(46, 132, 185), white);
+    }
+
     &--newComment {
         margin-top: 4px;
         margin-bottom: 4px;
@@ -154,7 +187,7 @@ export default {
         width: auto;
 
         img {
-            overflow : hidden;
+            overflow: hidden;
             max-width: 30px;
             width: 30px;
             height: 30px;

@@ -6,24 +6,24 @@
       <div class="post--author--info" :id="post.post_author_id">
 
         <router-link :to="{ name: 'UserProfile', params: { id: post.post_author_id } }">
-          <PostAuthor :id="post.post_author_id"/>
+          <PostAuthor :id="post.post_author_id" />
 
         </router-link>
       </div>
-      
+
 
       <p class="post--author--date">{{ post.post_date }}</p>
     </div>
-    <h2 class="post--title">{{ post.post_title }} [id : {{post.post_id}}]</h2>
+    <h2 class="post--title">{{ post.post_title }} [id : {{ post.post_id }}]</h2>
     <span class="post--text">{{ post.post_text }}</span>
     <div class="post--img--container">
       <img class="post--img" :src="post.post_img" alt="image du post">
     </div>
-    
 
 
-      <PostComments :id="post.post_id"  />
-    
+
+    <PostComments :id="post.post_id" />
+
   </div>
 </template>
 
@@ -33,12 +33,12 @@ import PostComments from "./PostComments.vue"
 import PostAuthor from './PostAuthor.vue';
 
 export default {
- 
+
   components: {
     PostComments,
     PostAuthor
   },
- 
+
   data: () => {
     return {
       postsData: {},
@@ -78,18 +78,7 @@ export default {
   min-width: 200px;
 }
 
-.display--comments {
-  margin-top: 4px;
-  padding: 4px 0px;
-  border-top: solid 1px #999;
-  cursor: pointer;
-  background: rgb(200, 208, 252);
 
-  &:hover {
-    text-decoration: underline;
-    background: rgb(129, 175, 254);
-  }
-}
 
 .comments--container {
   background: rgb(200, 208, 252);
@@ -104,26 +93,28 @@ export default {
   margin: 4px auto;
   margin-bottom: 24px;
   width: 90%;
-  background: linear-gradient(to bottom, rgb(182, 198, 255), white);
+  //background: linear-gradient(to bottom, rgb(182, 211, 255), white);
+  background-color: #044eff26;
 
   &--author {
     position: relative;
     text-align: left;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
-    background: rgb(161, 179, 252);
     padding: 6px;
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #555;
+    background-color: #1591ff5e;
 
     & a {
       display: flex;
       align-items: center;
       text-decoration: none;
-      color :black;
+      color: black;
+
       & :hover {
-        color : royalblue;
+        color: royalblue;
       }
     }
 
@@ -145,7 +136,7 @@ export default {
     margin: 0;
     padding: 8px 4px;
     border-bottom: 1px solid #555;
-    background: rgb(173, 190, 255);
+    background: rgb(56, 154, 214);
   }
 
   &--text {
@@ -156,18 +147,18 @@ export default {
     border: 1px solid #999;
     margin: 12px auto 0 auto;
     padding: 24px;
-    width:74%;
+    width: 74%;
   }
 
   &--img {
     object-fit: contain;
-    height:100%;
-    max-height:580px;
-    width:100%;
-    
-    &--container {    
-      margin:0 auto;
-      width:74%;
+    height: 100%;
+    max-height: 500px;
+    width: 100%;
+
+    &--container {
+      margin: 0 auto;
+      width: 74%;
     }
   }
 
@@ -193,8 +184,9 @@ export default {
     .post--author--date {
       font-size: 12px;
     }
-    .post--img--container{
-      height: 220px;        
+
+    .post--img--container {
+      height: 220px;
     }
   }
 }
