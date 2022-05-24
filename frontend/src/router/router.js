@@ -7,30 +7,29 @@ import NotFound from "../components/NotFound";
 
 
 const routes = [{
-    name : 'LoginPage',
-    path : '/',
-    component : LoginPage,
+    name: 'LoginPage',
+    path: '/',
+    component: LoginPage,
 },
 {
-    name : 'HomePage',
-    path : '/posts',
-    component : HomePage,
+    name: 'HomePage',
+    path: '/posts',
+    component: HomePage,
 },
 {
-    name : 'UserProfile',
-    path : '/user/:id',
-    component : UserProfile,
+    name: 'UserProfile',
+    path: '/user/:id',
+    component: UserProfile,
 },
 {
-    name : '404 not found',
-    path :  '/:pathMatch(.*)*',
-    component : NotFound,
-}
-
+    name: '404 not found',
+    path: '/:pathMatch(.*)*',
+    component: NotFound,
+},
 ];
 
-const router = createRouter ({
-    history : createWebHistory(),
+const router = createRouter({
+    history: createWebHistory(),
     routes,
     // scrollBehavior(to, from, savedPosition) {
     //     if (savedPosition) {

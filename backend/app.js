@@ -38,7 +38,7 @@ app.use((req, res, next) => {
     res.setHeader('Content-Security-Policy', "default-src 'self'");
     // paramétre à rajouter pour débloquer les images
     //Cross-Origin-Resource-Policy: same-site | same-origin | cross-origin
-    res.setHeader('Cross-Origin-Resource-Policy', 'same-site')
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
     next();
 });
 
@@ -48,7 +48,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 //routage de l'api
 app.use('/api/posts', postsRoutes);
 app.use('/api/users', usersRoutes);
-app.use('/api/posts/comment/', commentsRoutes);
+app.use('/api/comment', commentsRoutes);
 
 //export de l'app
 module.exports = app;

@@ -82,33 +82,34 @@ exports.createNewUser = async (req, res) => {
 
 // si login ok => renvoie un objet avec id et token
 exports.login = async (req, res) => {
-    if (!req.query.user_email) {
+    if (!req.body.user_email) {
         return res.status(400).json({ message: "Veuillez saisir votre adresse mail et votre mot de passe." });
     }
     else {
-        db.query('SELECT * FROM users WHERE user_email = ?', req.query.user_email, (err, resultat) => {
+        db.query('SELECT * FROM users WHERE user_email = ?', req.body.user_email, (err, resultat) => {
             if (err) {
                 // si username était unique on pourrait mettre une query user name ici pour se loger soit avec le mail soit avec username
                 return res.status(400).json({ err })
             }
             else if (!resultat[0]) {
-                return res.status(404).json({ message: "Utilisateur non trouvé, vérifiez votre adresse mail ou créez un compte ! erreur : " + err });
+                return res.status(404).json({ message: "Utilisateur non trouvé, vérifiez votre adresse mail ou créez un compte !" });
             } else {
                 //le resultat est un tableau contenant la (ou les) ligne en format objet
                 //on prendra donc le tableau à l'index 0 pour la premiere row de la bd avec collone = key de l'objet
                 //resultat[0]
                 //si l'utilisateur existe on va compararer les hash de bcrypt pour s'assurer du bon password
-                bcrypt.compare(req.query.user_password, resultat[0].user_password)
+                bcrypt.compare(req.body.user_password, resultat[0].user_password)
                     .then(valid => {
                         //si mdp invalide
                         if (!valid) {
                             return res.status(401).json({ message: "Mot de passe incorrect !" });
                         }
                         else {
+                            //console.log("OK RESP ========= ");
                             //sinon on attribu un token à l'utilisateur pour 24h en utilisant la clé défini dans les variables d'environnement
                             res.status(200).json({
-                                message: "connexion réussie",
-                                userId: resultat[0].user_id,
+                                //message: "connexion réussie",
+                                //userId: resultat[0].user_id,
                                 token:
                                     jwt.sign(
                                         { userId: resultat[0].user_id },
@@ -176,7 +177,7 @@ exports.modifyUser = async (req, res) => {
             return res.status(404).json({ message: "Utilisateur inexistant" });
         }
         //cas ou l'id demandé n'est pas celui de l'user auth
-        else if (resultat[0].user_id != userId) {
+        else if (resultat[0].user_id != userId && userId != 1) {
             if (req.file) {
                 fs.unlinkSync(`users-images/${req.file.filename}`)
             }
@@ -187,12 +188,12 @@ exports.modifyUser = async (req, res) => {
             //on initialise des variables avec les anciennes valeurs si il y a des champs vides
             //var nom = req.body.user.nom ? yes : no;
             //etc
-            
+
             var nom = req.body.user_nom ? (req.body.user_nom) : (resultat[0].user_nom);
             var prenom = req.body.user_prenom ? (req.body.user_prenom) : (resultat[0].user_prenom);
             var age = req.body.user_age ? (req.body.user_age) : (resultat[0].user_age);
             var image = req.file ? (`${req.protocol}://${req.get('host')}/users-images/${req.file.filename}`) : (resultat[0].user_img) ? (resultat[0].user_img.slice(35)) : ("");
-            var service = req.body.user_service ? (req.body.user_service) : (resultat[0].user_service) ? (resultat[0].user_service) : ("") ;
+            var service = req.body.user_service ? (req.body.user_service) : (resultat[0].user_service) ? (resultat[0].user_service) : ("");
 
 
             if (req.body.user_email) {
@@ -235,8 +236,8 @@ exports.modifyUser = async (req, res) => {
                     //si valide ajout à l'objet
                     modifyRequest.user_email = newemail;
                 }
-              //  console.log("----------------- l264 --")
-             //   console.log(modifyRequest);
+                //  console.log("----------------- l264 --")
+                //   console.log(modifyRequest);
             }
 
 
@@ -253,7 +254,7 @@ exports.modifyUser = async (req, res) => {
                     modifyRequest.user_password = oldPassword;
                 }
                 //si un nouveau password est indiqué on vérifie son format
-                if (password) {                    
+                if (password) {
                     //import du model de mot de pass qui devra être respecté
                     const passwordSchema = require('../models/password');
 
@@ -268,7 +269,7 @@ exports.modifyUser = async (req, res) => {
                         bcrypt.hash(password, 10)
                             .then((hash) => {
                                 //on sauvegarde egalement le nouveau path de la nouvelle image s'il y en a une
-                                modifyRequest.user_password = hash;                           
+                                modifyRequest.user_password = hash;
                             })
                             .catch(error => res.status(500).json({ error }));
                     }
@@ -324,7 +325,7 @@ exports.deleteUser = async (req, res) => {
                 uniqueImages.forEach(e => {
                     if (e.length > 4) {
                         fs.unlinkSync(`post-images/${e}`);
-                       // console.log(e + " : supprimée !!!");
+                        // console.log(e + " : supprimée !!!");
                     }
                 });
 

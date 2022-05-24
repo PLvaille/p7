@@ -13,38 +13,43 @@ exports.getAllPosts = async (req, res) => {
     // en 1 seule requete
     // post + commentaires + likes
 
-
     db.query('SELECT * FROM posts ORDER BY post_date DESC;', (err, resultat) => {
         if (err) {
-            return res.status(400).send({ error });
+            return res.status(400).send({ err });
         }
         else {
+            //edition de la date
+            resultat.forEach(e => {
+                const dateEdit = JSON.stringify(e.post_date).slice(0, 21).replace('T', ' à ').replace('"', 'le '); 
+                e.post_date = dateEdit;
+            });
             return res.status(200).json(resultat);
             //tableau d'objets
         }
     });
 };
 
-//route pour récupérer un post avec son id
+//route pour récupérer un post ses commentaires et likes avec son id
 exports.getPostById = async (req, res) => {
 
     let id = req.params.id;
-        db.query('SELECT * FROM posts LEFT JOIN comments ON (posts.post_id = comments.commented_post_id) WHERE post_id = ? ORDER BY comment_date ASC;', id, (err, resultat) => {
-            if (err) {
-                return res.status(400).send({ err });
-            }
-            else if (!resultat[0]) {
-                return res.status(404).send("Post inexistant")
-            }
-            else {
-                return res.status(200).json(resultat);
-            }
-        });
+    //'SELECT * FROM posts LEFT JOIN comments ON (posts.post_id = comments.commented_post_id) WHERE post_id = ? ORDER BY comment_date ASC;'
+    db.query('SELECT * FROM posts WHERE post_id = ? ORDER BY post_date ASC;', id, (err, resultat) => {
+        if (err) {
+            return res.status(400).send({ err });
+        }
+        else if (!resultat[0]) {
+            return res.status(404).send("Post inexistant")
+        }
+        else {
+            return res.status(200).json(resultat);
+        }
+    });
 };
 
 // route pour créer un post
 exports.createPost = async (req, res) => {
-    let image = "NULL";
+    let image = "";
     const userId = req.auth;
     const post = {
         post_author_id: userId,
@@ -122,7 +127,7 @@ exports.modifyPost = async (req, res, err) => {
                         else {
 
                             const oldImage = resultat[0].post_img.slice(34);
-                           // console.log(oldImage);
+                            // console.log(oldImage);
                             //si le path dans la db était pas NULL                        
                             if (oldImage.length > 4) {
                                 fs.unlinkSync(`post-images/${oldImage}`);
@@ -195,8 +200,8 @@ exports.deletePost = async (req, res) => {
                             return res.status(403).send(" Vous ne pouvez pas supprimer ce post !");
                         }
                         else {
-                             //suppression de l'image
-                             db.query(`SELECT * FROM posts WHERE post_id = ${postId};`, (err, resu) => {
+                            //suppression de l'image
+                            db.query(`SELECT * FROM posts WHERE post_id = ${postId};`, (err, resu) => {
                                 if (err) {
                                     return res.status(400).send(err);
                                 }
@@ -217,7 +222,7 @@ exports.deletePost = async (req, res) => {
                                     res.status(200).send("Post supprimé !");
                                 }
                             });
-                            
+
                         }
                     }
                 })

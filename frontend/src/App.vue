@@ -1,6 +1,6 @@
 <template>
 
-  <router-view></router-view>  
+  <router-view />  
   
 </template>
 <script>
@@ -11,6 +11,10 @@ export default {
 }
 </script>
 <style lang="scss">
+.alertMessage {
+  color : red;
+}
+
 .btn {
   text-align: center;
   cursor: pointer;
@@ -31,10 +35,9 @@ export default {
   }
 }
 
-
 body{
   position: relative;
-  background: linear-gradient(to left,skyblue, white, white, white, white, skyblue);
+  background: linear-gradient(to left,royalblue, white, white, white, white, royalblue);
 }
 
 #app {

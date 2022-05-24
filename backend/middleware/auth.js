@@ -24,7 +24,7 @@ module.exports = (req, res, next) => {
       if (err) {
         throw err;
       }
-      if (!res | res == undefined | res == []) {
+      if (!res || res == undefined || res == []) {
         throw err;
       }
       else {
@@ -34,14 +34,9 @@ module.exports = (req, res, next) => {
           next();
         }
         else {
-          //sinon on verifie que l'id de l'user existe et qu'il est bien identique à celui encodé dans la requete
-          if (!paramsId || !userId) {
-            res.status(400).send("requête incomplète !");
-          } else {
-            req.auth = userId;
-            //si l'id est validé
-            next();
-          }
+          req.auth = userId;
+          //si l'id est validé
+          next();
         }
       }
     });

@@ -209,9 +209,6 @@ aside {
   object-fit: cover;
 }
 
-@media screen and (max-width: 400px) {
- 
-}
 
 @media screen and (max-width: 500px) {
   .header--welcome {

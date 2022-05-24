@@ -1,67 +1,88 @@
 <template>
+
   <h2 class="titre">Fil d'actualités</h2>
-  <div class="post">
+  <div class="post" v-for="post in postsData" :key="post.post_id" :id="post.post_id">
     <div class="post--author">
-      <div class="post--author--info">
-        <img class="post--author--img" alt="pohot de profile de {userid}"
-          src="https://st.depositphotos.com/1909187/2297/i/600/depositphotos_22971972-stock-photo-blank-white-male-head-front.jpg" />
-        <h3 class="post--author--name">{userPrenom} {userNom}</h3>
+      <div class="post--author--info" :id="post.post_author_id">
+
+        <router-link :to="{ name: 'UserProfile', params: { id: post.post_author_id } }">
+          <PostAuthor :id="post.post_author_id"/>
+
+        </router-link>
       </div>
-      <p class="post--author--date">le {22/02/2022}</p>
+
+      <p class="post--author--date">{{ post.post_date }}</p>
     </div>
-    <h2 class="post--title">{Un Titre Hello World}</h2>
+    <h2 class="post--title">{{ post.post_title }}</h2>
     <div class="post--img--container">
-      <img class="post--img"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Christophe_Lambert_et_Jean_Dujardin_%28Cropped%29.jpg/220px-Christophe_Lambert_et_Jean_Dujardin_%28Cropped%29.jpg"
-        alt="Photo de jean dujardin">
+      <img class="post--img" :src="post.post_img" alt="image du post">
     </div>
-    <span class="post--text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga architecto soluta
-      consequuntur nemo cumque ab ducimus fugit odio minima praesentium magni tempora, dolore ut impedit numquam
-      expedita quo harum, quasi corporis sit possimus ullam! Mollitia soluta asperiores aut expedita
-      aliquam.</span>
+    <span class="post--text">{{ post.post_text }}</span>
 
-    <div class="post--reactions">
-      <span class="post--reactions--likes" id="likes--count">{X} 👍🏼</span>
-    </div>
-    <div class="display--comments" id="lessComments" v-if="displayComments" @click="displayAllComments" v-bind:style="[displayAllComments ?
-    { 'background': 'rgb(129, 175, 254)' } :
-    {}]">
-      Réduire <br>⬆️
-    </div>
-    <div class="display--comments" v-if="!displayComments" @click="displayAllComments">
-      {x} commentaires 💬<br> ⬇️
-    </div>
-    <div class="comments--container" v-if="displayComments" v-bind:style="[displayAllComments ?
-    { 'background': 'linear-gradient(rgb(129, 175, 254), white)' } :
-    {}]">
-      <PostComments />
-    </div>
 
+      <PostComments :id="post.post_id" />
+    
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 import PostComments from "./PostComments.vue"
+import PostAuthor from './PostAuthor.vue';
 
 export default {
+ 
   components: {
     PostComments,
-
+    PostAuthor
   },
+ 
   data: () => {
     return {
-      displayComments: false,
+      postsData: {},
+  
     }
   },
   methods: {
-    displayAllComments() { this.displayComments = !this.displayComments },
+    async getPosts() {
+      const token = (sessionStorage.getItem('token'));
+      const header = { headers: { "Authorization": `Bearer ${token}` } }
+      axios.get('http://localhost:3000/api/posts', header).then(res => {
+        console.log("---- res.data ----- ")
+        console.log(res.data);
+        this.postsData = res.data;
+        // res.data.forEach(e => {
+        //   this.id = e.post_author_id;
+        // })
+        //this.userData = [... new Set(this.userData)];     
+
+        //params = user_id,
+        // header
+        //for each user 
+        //get
+
+      })
+    },
+    async getUser() {
+      this.postsData.forEach(e => {
+        this.userData.push(e.data.post_author_id);
+      })
+      console.log(this.userdata);
+    }
+  },
+  created() {
+    this.getPosts();
+  },
+  computed: {
+
   }
 }
+
 </script>
 
 <style lang="scss">
 .titre {
-  margin:0 auto;
+  margin: 0 auto;
   text-align: center;
   color: royalblue;
   border: 2px solid royalblue;
@@ -69,7 +90,7 @@ export default {
   margin: 32px auto;
   padding: 8px;
   width: 20%;
-  min-width:200px;
+  min-width: 200px;
 }
 
 .display--comments {
@@ -96,7 +117,7 @@ export default {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   margin: 4px auto;
-  margin-bottom: 12px;
+  margin-bottom: 24px;
   width: 90%;
   background: linear-gradient(to bottom, rgb(182, 198, 255), white);
 
@@ -111,13 +132,18 @@ export default {
     justify-content: space-between;
     border-bottom: 1px solid #555;
 
-    &--info {
+    & a {
       display: flex;
+      align-items: center;
+      text-decoration: none;
+      color :black;
+      & :hover {
+        color : royalblue;
+      }
     }
 
-    &--name {
-      font-weight: bold;
-      margin-left: 6px;
+    &--info {
+      display: flex;
     }
 
     &--date {
@@ -128,23 +154,11 @@ export default {
       bottom: 0px;
       right: 2px;
     }
-
-    &--img {
-      cursor: pointer;
-      border-radius: 50%;
-      border: 1px solid black;
-      min-width: 50px;
-      max-width: 50px;
-      min-height: 50px;
-      max-height: 50px;
-      object-fit: cover;
-    }
   }
 
   &--title {
-    margin-top: 0px;
-    margin-bottom: 0;
-    padding: 8px 0;
+    margin: 0;
+    padding: 8px 4px;
     border-bottom: 1px solid #555;
     background: rgb(173, 190, 255);
   }
@@ -162,6 +176,7 @@ export default {
     max-height: 300px;
     height: 300px;
     object-fit: contain;
+    
 
     &--container {
       margin: 12px;
@@ -183,6 +198,12 @@ export default {
         cursor: pointer;
         background: rgb(129, 175, 254);
       }
+    }
+  }
+
+  @media screen and (max-width: 500px) {
+    .post--author--date {
+      font-size: 12px;
     }
   }
 }
