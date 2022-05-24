@@ -1,6 +1,5 @@
 //package multer pour gérer les fichier entrant en HTTP
 const multer = require('multer');
-const { send } = require('process');
 
 //définition format des images
 //gif ??
@@ -15,7 +14,7 @@ const MIME_TYPES = {
 const storage = multer.diskStorage({
     //destination 'images' 
     destination: (req, file, callback) => {
-        callback(null, 'post-images');
+        callback(null, 'images');
     },
     //nom de fichier 
     filename: (req, file, callback) => {

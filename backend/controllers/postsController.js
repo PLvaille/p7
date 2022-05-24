@@ -63,7 +63,7 @@ exports.createPost = async (req, res) => {
     if (validPost.error) {
         if (req.file) {
             //suppression de l'image si erreur dans le form
-            fs.unlinkSync(`post-images/${req.file.filename}`);
+            fs.unlinkSync(`images/${req.file.filename}`);
         }
         return res.status(400).send(validPost.error.message);
     }
@@ -71,7 +71,7 @@ exports.createPost = async (req, res) => {
     else {
         //si img on ajoute son chemin à l'objet envoyé dans la db
         if (req.file) {
-            image = `${req.protocol}://${req.get('host')}/post-images/${req.file.filename}`;
+            image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
         }
         post.post_img = image;
         //sauvegarde de l'objet en db
@@ -97,7 +97,7 @@ exports.modifyPost = async (req, res, err) => {
         }
         else if (!resultat[0]) {
             if (req.file) {
-                fs.unlinkSync(`post-images/${req.file.filename}`);
+                fs.unlinkSync(`images/${req.file.filename}`);
             }
             return res.status(404).json({ message: "Poste introuvable" });
 
@@ -107,7 +107,7 @@ exports.modifyPost = async (req, res, err) => {
             const postAuthor = resultat[0].post_author_id;
             if (postAuthor != authId && authId != 1) {
                 if (req.file) {
-                    fs.unlinkSync(`post-images/${req.file.filename}`);
+                    fs.unlinkSync(`images/${req.file.filename}`);
                 }
                 return res.status(403).json({ message: "Vous ne pouvez pas modifier un post qui ne vous appartient pas !" });
 
@@ -130,10 +130,10 @@ exports.modifyPost = async (req, res, err) => {
                             // console.log(oldImage);
                             //si le path dans la db était pas NULL                        
                             if (oldImage.length > 4) {
-                                fs.unlinkSync(`post-images/${oldImage}`);
+                                fs.unlinkSync(`images/${oldImage}`);
                             }
                             //on enregistre le nouveau chemin dans l'objet post
-                            image = `${req.protocol}://${req.get('host')}/post-images/${req.file.filename}`;
+                            image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
                         }
                         //création de l'objet post pour la requete préparé
                         const post = {
@@ -208,7 +208,7 @@ exports.deletePost = async (req, res) => {
                                 else {
                                     //si il y a une image (not NULL) on la supprime 
                                     if (resu[0].post_img.length > 34) {
-                                        fs.unlinkSync(`post-images/${resu[0].post_img.slice(34)}`);
+                                        fs.unlinkSync(`images/${resu[0].post_img.slice(34)}`);
                                     }
                                 }
                             });

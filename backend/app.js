@@ -14,7 +14,6 @@ app.use(express.json());
 // const cors = require('cors');
 // app.use(cors());
 
-
 // //connexion à la DB
  const db = require('./database_connect');
 

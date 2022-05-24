@@ -3,7 +3,7 @@
   <h1 id="landingWelcome">Bienvenue</h1>
   <br>
   <div id="welcomeContainer">
-    <h2 id="login" @click="toggleLogin" v-bind:style="[toggleFormSignup ?
+    <h2 @click="toggleLogin" v-bind:style="[toggleFormSignup ?
       { 'color': 'royalblue', 'text-decoration': 'underline', 'cursor': 'pointer' } :
       { 'color': 'black' }
     ]">
@@ -15,7 +15,7 @@
       <LoginForm />
     </div>
 
-    <h2 id="createAccount" @click="toggleSignup" v-bind:style="[toggleFormLogin ?
+    <h2 @click="toggleSignup" v-bind:style="[toggleFormLogin ?
       { 'color': 'royalblue', 'text-decoration': 'underline', 'cursor': 'pointer' } :
       { 'color': 'black' }
     ]">

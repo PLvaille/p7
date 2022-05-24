@@ -10,17 +10,19 @@
 
         </router-link>
       </div>
+      
 
       <p class="post--author--date">{{ post.post_date }}</p>
     </div>
-    <h2 class="post--title">{{ post.post_title }}</h2>
+    <h2 class="post--title">{{ post.post_title }} [id : {{post.post_id}}]</h2>
+    <span class="post--text">{{ post.post_text }}</span>
     <div class="post--img--container">
       <img class="post--img" :src="post.post_img" alt="image du post">
     </div>
-    <span class="post--text">{{ post.post_text }}</span>
+    
 
 
-      <PostComments :id="post.post_id" />
+      <PostComments :id="post.post_id"  />
     
   </div>
 </template>
@@ -40,7 +42,6 @@ export default {
   data: () => {
     return {
       postsData: {},
-  
     }
   },
   methods: {
@@ -48,27 +49,11 @@ export default {
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } }
       axios.get('http://localhost:3000/api/posts', header).then(res => {
-        console.log("---- res.data ----- ")
-        console.log(res.data);
+        //console.log("---- res.data ----- ")
+        //console.log(res.data);
         this.postsData = res.data;
-        // res.data.forEach(e => {
-        //   this.id = e.post_author_id;
-        // })
-        //this.userData = [... new Set(this.userData)];     
-
-        //params = user_id,
-        // header
-        //for each user 
-        //get
-
       })
     },
-    async getUser() {
-      this.postsData.forEach(e => {
-        this.userData.push(e.data.post_author_id);
-      })
-      console.log(this.userdata);
-    }
   },
   created() {
     this.getPosts();
@@ -164,22 +149,25 @@ export default {
   }
 
   &--text {
+    font-weight: bold;
     display: block;
     background: white;
     border-radius: 4px;
     border: 1px solid #999;
-    margin: 0 8px;
-    padding: 4px;
+    margin: 12px auto 0 auto;
+    padding: 24px;
+    width:74%;
   }
 
   &--img {
-    max-height: 300px;
-    height: 300px;
     object-fit: contain;
+    height:100%;
+    max-height:580px;
+    width:100%;
     
-
-    &--container {
-      margin: 12px;
+    &--container {    
+      margin:0 auto;
+      width:74%;
     }
   }
 
@@ -204,6 +192,9 @@ export default {
   @media screen and (max-width: 500px) {
     .post--author--date {
       font-size: 12px;
+    }
+    .post--img--container{
+      height: 220px;        
     }
   }
 }

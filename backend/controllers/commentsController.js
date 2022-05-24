@@ -34,6 +34,9 @@ exports.getComments = async (req, res) => {
             result.forEach(e => {
                 const dateEdit = JSON.stringify(e.comment_date).slice(0, 21).replace('T', ' à ').replace('"', 'le ');
                 e.comment_date = dateEdit;
+                delete e.user_password;
+                //console.log(e);
+            
             });
             return res.status(200).send(result);
         }

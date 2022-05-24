@@ -19,6 +19,9 @@ export default {
     methods: {
 
         async getUsers() {
+            // console.log("==============postAuthor | postData ================")
+            // console.log(this.id);
+            // console.log(this.postData);
             const token = (sessionStorage.getItem('token'));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
             const paramsId = this.id;
@@ -26,6 +29,8 @@ export default {
             await axios.get('http://localhost:3000/api/users/' + paramsId, header)
                 .then(res => {
                     this.userData = res.data;
+                    // console.log("POST AUTHOR |` getUsers")
+                    // console.log(res.data);
                     this.userNom = this.userData[0].user_nom;
                     this.userPrenom = this.userData[0].user_prenom;
                     this.userImg = this.userData[0].user_img;
