@@ -15,7 +15,6 @@ const userValidation = Joi.object().keys({
       }),
     user_img: Joi.string().max(100).allow('').optional().messages({
         'string.max' : `Le nom de votre fichier-image est trop grand !`,
-        'string.min': `Le fichier a un nom trop petit !`,
     }),
     user_age: Joi.number().integer().min(18).max(100).required().messages({
         'number.min' : `Vous devez être majeur !`,

@@ -22,7 +22,7 @@ const routes = [{
     component: UserProfile,
 },
 {
-    name: '404 not found',
+    name: '404',
     path: '/:pathMatch(.*)*',
     component: NotFound,
 },

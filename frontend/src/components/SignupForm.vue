@@ -7,18 +7,18 @@
       <input type="text" v-model="user_email" name="user_email" id="user_email" placeholder="ex : exemple@gmail.com"
         required />
       <label for="user_password"> *Votre mot de passe:</label>
-      <input type="password" v-model="user_password" name="user_password" id="user_password" required>
+      <input type="password" minlength="8" v-model="user_password" name="user_password" id="user_password" required>
       <label for="passwordConfirm"> *Confirmez votre mot de passe :</label>
-      <input type="password" @change="confirmPassword" v-model="passwordConfirm" name="passwordConfirm"
+      <input type="password" minlength="8" @change="confirmPassword()" v-model="passwordConfirm" name="passwordConfirm"
         id="passwordConfirm" min="8" required>
       <label for="user_nom"> *Votre nom :</label>
-      <input type="text" v-model="user_nom" name="user_nom" id="user_nom" required>
+      <input type="text" minlength="2" maxlength="30" v-model="user_nom" name="user_nom" id="user_nom" required>
       <label for="user_prenom"> *Votre prénom :</label>
-      <input type="text" v-model="user_prenom" name="user_prenom" id="user_prenom" required>
+      <input type="text" minlength="2" maxlength="30" v-model="user_prenom" name="user_prenom" id="user_prenom" required>
       <label for="user_age"> *Votre age :</label>
       <input type="number" v-model="user_age" name="user_age" id="user_age" required>
       <label for="user_service"> Le service dans lequel vous travaillez :</label>
-      <input type="text" v-model="user_service" name="user_service" id="service">
+      <input type="text" minlength="2" maxlength="30" v-model="user_service" name="user_service" id="service">
       <label for="user_img">Selectionnez une image de profil</label>
       <input type="file" ref="file" @change="uploadFile()" accept=".jpg, .jpeg, .png, .gif" id="user_img" name="user_img">
       <input class="btn" type="submit" id="btn-signup" value="Créer le compte" />
@@ -91,12 +91,17 @@ export default {
             window.alert("Compte créé avec succès, veuillez maintenant vous connecter !");
             this.openLogin();
           }
+          else {
+            console.log("erroooooor")
+          }
+        
         })
         //affichage des erreurs au dessus du form
         .catch(error => {
           if (error.response.data.message) {
             this.alertMsg = error.response.data.message
           }
+         
           else {
             this.alertMsg = error;
           }

@@ -20,6 +20,7 @@
     <PostComments :id="post.post_id" />
 
   </div>
+
 </template>
 
 <script>
@@ -40,22 +41,19 @@ export default {
     }
   },
   methods: {
+    //fonction pour recuperer les posts de la db
     async getPosts() {
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } }
       axios.get('http://localhost:3000/api/posts', header).then(res => {
-        //console.log("---- res.data ----- ")
-        //console.log(res.data);
         this.postsData = res.data;
       })
     },
   },
+  //a la creation de la page on lance la fonction tout de suite
   created() {
-    this.getPosts();
+       this.getPosts();
   },
-  computed: {
-
-  }
 }
 
 </script>

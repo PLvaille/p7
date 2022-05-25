@@ -55,9 +55,9 @@
 
 
     <nav class="header--nav" id="headerNav">
-      <router-link to="/user/:id">Mon profil 👤</router-link>
+      <router-link v-if="user_id" :to="{ name: 'UserProfile', params: { id: user_id } }">Mon profil 👤</router-link>
       <!-- <a href="#newPost">Dites quelque chose !</a> | -->
-      <router-link to="/">Déconnexion 🔴</router-link>
+      <router-link @click="logout" to="/">Déconnexion 🔴</router-link>
     </nav>
 
 
@@ -68,6 +68,24 @@
 
 <script>
 export default {
+  data(){
+    return {
+      user_id:"",
+    }
+  },
+  methods:{
+    logout(){
+      sessionStorage.clear();
+    },
+
+   async getUserId(){
+       this.user_id = await (sessionStorage.getItem('id'));
+       console.log(this.user_id);
+  },
+  },
+  created(){
+    this.getUserId()
+  },
 
 }
 </script>

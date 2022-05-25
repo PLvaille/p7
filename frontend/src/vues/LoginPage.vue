@@ -7,8 +7,7 @@
     <!-- login -->
     <h2 @click="toggleLogin" v-bind:style="[toggleFormSignup ?
       { 'color': 'royalblue', 'text-decoration': 'underline', 'cursor': 'pointer' } :
-      { 'color': 'black' }
-    ]">
+      { 'color': 'black' }]">
       Connexion<br>
       <div v-if="toggleFormSignup">⬇️</div>
     </h2>
@@ -47,6 +46,7 @@ export default {
     }
   },
   methods: {
+    //fonction pour afficher / cacher les parties login/signup
     toggleLogin() {
       this.toggleFormLogin = !this.toggleFormLogin;
       this.toggleFormSignup = !this.toggleFormSignup;

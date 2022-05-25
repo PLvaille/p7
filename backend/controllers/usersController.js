@@ -123,7 +123,7 @@ exports.login = async (req, res) => {
                             //sinon on attribu un token à l'utilisateur pour 24h en utilisant la clé défini dans les variables d'environnement
                             res.status(200).json({
                                 //message: "connexion réussie",
-                                //userId: resultat[0].user_id,
+                                userId: resultat[0].user_id,
                                 token:
                                     jwt.sign(
                                         { userId: resultat[0].user_id },
@@ -133,13 +133,11 @@ exports.login = async (req, res) => {
                             });
                         }
                     })
-                    .catch(error => res.status(500).json(error));
+                    .catch(error => res.status(500).json('auth err : ' + error));
             }
         });
     }
 };
-
-
 
 // renvoi soit toutes les infos si c'est le bon user soit infos partiels
 exports.getUserById = async (req, res) => {

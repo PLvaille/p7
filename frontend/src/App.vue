@@ -1,8 +1,10 @@
 <template>
-
-  <router-view />  
+<head>
   
+</head>
+  <router-view />  
 </template>
+
 <script>
 export default {
   name: 'App',
@@ -10,9 +12,25 @@ export default {
 }
 }
 </script>
+
 <style lang="scss">
 .alertMessage {
   color : red;
+}
+#connectezvous {
+  position: relative;
+  top: 160px;
+  margin: 0 auto;
+  text-decoration: none;
+  color: black;
+  border: 2px solid black;
+  border-radius: 16px;
+  padding: 8px;
+  display : inline-block;
+  &:hover {
+    background: royalblue;
+    color : white;
+  }
 }
 
 .btn {
@@ -21,11 +39,11 @@ export default {
   font-weight: bold;
   background-color: lightgray;
   border-radius: 8px;
-  padding: 8px 24px;
+  padding: 8px 16px;
   margin: 0 auto;
   margin-top: 16px;
   max-width:180px;
-  width:50%;
+  width:55%;
 
   &:hover {
     color: royalblue;
