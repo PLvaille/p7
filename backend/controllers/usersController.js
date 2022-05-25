@@ -18,8 +18,10 @@ require('dotenv').config({
 
 // création d'un utlisateur, email doit être valide (et unique mais c'est géré côté db)
 exports.createNewUser = async (req, res) => {
-    //image par default
-    let image = `${req.protocol}://${req.get('host')}/images/defaulthuman.jpg`;
+    //image par défaut si pas de req.file  
+    if(!req.file) {
+    var image = `${req.protocol}://${req.get('host')}/images/defaulthuman.jpg`;
+    }
     //tester null 
     if (!req.body.user_email || !req.body.user_password) {
         if (req.file) {
@@ -75,8 +77,10 @@ exports.createNewUser = async (req, res) => {
                     db.query('INSERT INTO users SET ?', user, (error, results) => {
                         //si on ne peut pas insérer dans la db c'est que l'email existe deja
                         if (error) {
-                            fs.unlinkSync(`images/${req.file.filename}`)
-                            res.status(400).json({ message: "Cette adresse email est déjà utilisé " + error });
+                            if (req.file) {
+                                fs.unlinkSync(`images/${req.file.filename}`);
+                            }
+                            res.status(400).json({ message: "Cette adresse email est déjà utilisé " });
                             // si aucun probleme on créer la row dans la db
                         } else {
                             res.status(201).json({ message: "Utilisateur créé !" });
@@ -84,10 +88,9 @@ exports.createNewUser = async (req, res) => {
                     });
                 }
             })
-            .catch(err => { fs.unlinkSync(`images/${req.file.filename}`);
-              res.status(400).json(err);
-           
-        });
+            .catch(err => {
+                res.status(400).json(err);
+            });
     }
 };
 

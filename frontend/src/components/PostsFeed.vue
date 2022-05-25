@@ -4,13 +4,10 @@
   <div class="post" v-for="post in postsData" :key="post.post_id" :id="post.post_id">
     <div class="post--author">
       <div class="post--author--info" :id="post.post_author_id">
-
         <router-link :to="{ name: 'UserProfile', params: { id: post.post_author_id } }">
           <PostAuthor :id="post.post_author_id" />
-
         </router-link>
       </div>
-
 
       <p class="post--author--date">{{ post.post_date }}</p>
     </div>
@@ -19,8 +16,6 @@
     <div class="post--img--container">
       <img class="post--img" :src="post.post_img" alt="image du post">
     </div>
-
-
 
     <PostComments :id="post.post_id" />
 

@@ -11,18 +11,14 @@
       <input v-model="user_password" name="user_password" type="password" id="user_password" minlength="8" size="32" />
       <p v-if:="messageError.length > 2" class="alertMessage">{{ messageError }}</p>
       <input class="btn" type="submit" id="btn-login" value="Connexion" />
-
-
     </fieldset>
   </form>
 </template>
 
 <script>
 // eslint-disable-next-line no-unused-vars
+import router from '@/router/router';
 import axios from 'axios';
-
-
-
 export default {
   data: function () {
 
@@ -39,19 +35,15 @@ export default {
         user_email: this.user_email,
         user_password: this.user_password
       }
-      console.log("======formulaire======");
-      console.log(formulaire);
-     
       axios.post('http://localhost:3000/api/users/login', formulaire)
     
       .then(res => {
         if (res.status == 200) {
           console.log(res.data.token);
-          //  enregistrer la data 
-          // aller à local8000/ 
+          //  enregistrer le token dans la session
           sessionStorage.token = res.data.token;
-          
-
+          // rediriger vers /posts
+          router.push("/posts");
         }
         else {
           //autre erreur inconnue : afficher le message dans le v if

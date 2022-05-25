@@ -1,7 +1,11 @@
 const Joi = require('joi');
 
 const commentSchema = Joi.object().keys({
-    comment : Joi.string().min(1).required(),
+    comment : Joi.string().min(1).required().messages({
+        'string.empty': `Le commentaire ne peut pas être vide !`,
+        'string.min': `Le commentaire doit avoir au moins {#limit} caractère !`,
+        'any.required': `Un texte de commentaire est requis !`
+      }),
 });
 
 module.exports = commentSchema;

@@ -3,6 +3,8 @@
   <h1 id="landingWelcome">Bienvenue</h1>
   <br>
   <div id="welcomeContainer">
+
+    <!-- login -->
     <h2 @click="toggleLogin" v-bind:style="[toggleFormSignup ?
       { 'color': 'royalblue', 'text-decoration': 'underline', 'cursor': 'pointer' } :
       { 'color': 'black' }
@@ -15,7 +17,8 @@
       <LoginForm />
     </div>
 
-    <h2 @click="toggleSignup" v-bind:style="[toggleFormLogin ?
+    <!-- signup -->
+    <h2 @click="toggleLogin" v-bind:style="[toggleFormLogin ?
       { 'color': 'royalblue', 'text-decoration': 'underline', 'cursor': 'pointer' } :
       { 'color': 'black' }
     ]">
@@ -23,12 +26,10 @@
       <div v-if="toggleFormLogin">⬇️</div>
     </h2>
     <div v-if="toggleFormSignup">
-      <SignupForm />
+      <SignupForm @signup="toggleLogin()"/>
     </div>
   </div>
-  <div>
-    <router-link to="/posts">skip</router-link>
-  </div>
+
 </template>
 
 <script>
@@ -42,17 +43,13 @@ export default {
   data: () => {
     return {
       toggleFormLogin: true,
-      toggleFormSignup: false
+     
     }
   },
   methods: {
     toggleLogin() {
       this.toggleFormLogin = !this.toggleFormLogin;
       this.toggleFormSignup = !this.toggleFormSignup;
-    },
-    toggleSignup() {
-      this.toggleFormSignup = !this.toggleFormSignup;
-      this.toggleFormLogin = !this.toggleFormLogin;
     },
   }
 }
