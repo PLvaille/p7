@@ -1,6 +1,6 @@
 <template>
     <img class="post--author--img" :alt="'photo de profile de ' + fullname" :src="userImg" />
-    <h3 class="post--author--name">{{fullname}} </h3>
+    <h3 class="post--author--name">{{ fullname }} </h3>
 </template>
 
 <script>
@@ -25,7 +25,7 @@ export default {
             const token = (sessionStorage.getItem('token'));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
             const paramsId = this.id;
-
+            const path = 'http://localhost:3000/images/'
             await axios.get('http://localhost:3000/api/users/' + paramsId, header)
                 .then(res => {
                     this.userData = res.data;
@@ -33,17 +33,18 @@ export default {
                     // console.log(res.data);
                     this.userNom = this.userData[0].user_nom;
                     this.userPrenom = this.userData[0].user_prenom;
-                    this.userImg = this.userData[0].user_img;
+                    this.userImg = path+this.userData[0].user_img;
                 })
                 .catch(error => {
                     console.log(error);
                 })
         },
     },
-    computed : {
-        fullname(){ 
-            return this.userNom + ' ' + this.userPrenom }
-    },  
+    computed: {
+        fullname() {
+            return this.userNom + ' ' + this.userPrenom
+        }
+    },
     created() {
         this.getUsers();
     }
@@ -65,7 +66,7 @@ export default {
         min-height: 50px;
         max-height: 50px;
         object-fit: cover;
-        overflow : hidden;
+        overflow: hidden;
     }
 
     & h3 {

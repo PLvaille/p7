@@ -6,17 +6,17 @@
     </div>
     <hr>
 
-
     <div class="container" v-if="isUser">
-      <form @submit="modifyUser" id="modifyUser">
+      <form @submit="modifyUser" id="modifyUserForm">
         <fieldset>
           <legend>Modifier votre compte</legend>
+          <span class="container-user--date">Vous êtes inscrit(e) depuis le : {{ data.user_date }}</span>
           <label>Votre image actuelle :</label>
           <img :src="data.user_img" alt="votre image de profil" class="user-img">
           <label for="email"> *Adresse email :</label>
-          <input type="text" name="user_email" id="user_email" :value="data.user_email" required />
+          <input type="text" name="user_email" id="user_email" :default="data.user_email" required />
           <label for="password"> *Votre mot de passe:</label>
-          <input type="password" minlength="8" v-model="user_password" name="user_password" id="user_password" required>
+          <input type="password" v-model="user_password" minlength="8" name="user_password" id="user_password" required>
           <label for="passwordConfirm"> *Confirmez votre mot de passe :</label>
           <input type="password" minlength="8" @change="confirmPassword()" v-model="password_confirm"
             name="password_confirm" id="passwordConfirm" required>
@@ -30,19 +30,21 @@
           <label for="service"> Le service dans lequel vous travaillez :</label>
           <input type="text" minlength="2" maxlength="30" name="user_service" id="user_service"
             :value="data.user_service">
-          <label id="imglabel" for="image">Selectionnez une image de profil</label>
-          <input type="file" id="fileSelect" name="user_img">
+          <label id="imgLabel" for="image">Modifiez votre image de profil</label>
+          <input ref="file" @change="uploadFile()" accept=".jpg, .jpeg, .png, .gif" type="file" id="user_img"
+            name="user_img">
           <span v-if="alertMsg" class="alertMessage" id="alrtMsg">{{ alertMsg }}</span>
+          <span v-if="succesMessage" class="succesMessage" id="succesMessage">{{ succesMessage }}</span>
           <input class="btn btn--submit" type="submit" id="btn-signup" value="Modifier le compte ✔️" />
           <br>
           <p id="nb">* champ requis</p>
         </fieldset>
       </form>
 
-      <form id="deleteUser" method="delete" action="">
+      <form @submit="deleteUser" id="deleteUser" method="delete" action="">
         <fieldset>
           <legend>Supprimer votre compte</legend>
-          <input class="btn btn--delete" type="" id="btn-delete" value="Supprimer le compte 🗑️" />
+          <input class="btn btn--delete" type="submit" id="btn-delete" value="Supprimer le compte 🗑️" />
         </fieldset>
       </form>
 
@@ -62,14 +64,13 @@
       </div>
     </div>
 
-
-
   </div>
   <div v-else>
     <router-link to="/" id="connectezvous"><span>Connectez vous</span></router-link>
   </div>
 </template>
 <script>
+import router from '@/router/router';
 import axios from 'axios';
 export default {
   data() {
@@ -78,18 +79,94 @@ export default {
       data: "",
       user_password: "",
       password_confirm: "",
+      user_email: "",
+      user_nom: "",
+      user_prenom: "",
+      user_age: "",
+      user_service: "",
+      file: "",
       alertMsg: "",
+      succesMessage: "",
+
 
     }
   },
   methods: {
-    modifyUser(e) {
+    uploadFile() {
+      //on prend le file avec $refs
+      //files est un tableau de l'objet file dont on prend l'index 0 = premier fichier
+      this.file = this.$refs.file.files[0];
+    },
+
+    async modifyUser(e) {
       e.preventDefault();
+      const token = (sessionStorage.getItem('token'));
+      const id = (sessionStorage.getItem('id'));
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      };
+      // console.log("ID + config");
+      // console.log(id, config);
+      const user_nom = document.getElementById('user_nom').value;
+      const user_prenom = document.getElementById('user_prenom').value;
+      const user_email = document.getElementById('user_email').value;
+      const user_age = document.getElementById('user_age').value;
+      const user_service = document.getElementById('user_service').value;
+      const user_password = document.getElementById('user_password').value;
+
+      const body = {
+        user_nom: user_nom,
+        user_prenom: user_prenom,
+        user_email: user_email,
+        user_password: user_password,
+        user_age: user_age,
+        user_service: user_service,
+        image: this.file,
+      }
+
+      // console.log("======= body =======");
+      // console.log(body);
+      await axios.put(`http://localhost:3000/api/users/${id}`, body, config)
+        .then(res => {
+          //console.log(res);
+          this.succesMessage = res.data.message;
+          this.alertMsg = "";
+          setTimeout(this.getUser(), 300);
+        })
+        .catch(error => {
+          if (error.response.data) {
+            this.succesMessage = "";
+            this.alertMsg = error.response.data.message;
+          }
+          else {
+            this.succesMessage = "";
+            this.alertMsg = error;
+          }
+          console.log(error)
+        })
+    },
+    async deleteUser(e) {
+      e.preventDefault();
+      const token = (sessionStorage.getItem('token'));
+      const header = { headers: { "Authorization": `Bearer ${token}` } };
+      const searchId = window.location.href.slice(27);
+      await axios.delete('http://localhost:3000/api/users/' + searchId, header)
+        .then((res) => {
+          alert("Compte supprimé !");
+          console.log(res);
+          sessionStorage.clear();
+          router.push('/');
+        })
+        .catch(error => {
+          console.log(error);
+          this.alertMsg = error;
+        })
     },
 
     confirmPassword() {
-      console.log(this.user_password)
-      console.log(this.password_confirm)
       if (this.user_password != this.password_confirm) {
         this.alertMsg = "Votre confirmation de mot de passe n'est pas identique !"
       }
@@ -101,22 +178,23 @@ export default {
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } };
       const searchId = window.location.href.slice(27);
+      const path = 'http://localhost:3000/images/'
       await axios.get('http://localhost:3000/api/users/' + searchId, header)
         .then(res => {
           this.data = res.data[0];
+          this.data.user_img = path + res.data[0].user_img;
           this.data.user_date = (this.data.user_date.slice(0, 16).replace('T', ' à ').replace('"', ''));
           //s'il sagit du compte de l'user, le back renvoi le mail
           if (res.data[0].user_email) {
             return this.isUser = true;
           }
-          
         })
         .catch(error => {
-          this.alertMsg = "Erreur du server, fichier probablement trop volumineux (max 5Mb)";
           console.log(error);
+
+          return this.alertMsg = error;
         })
     },
-
     session() {
       const id = sessionStorage.getItem('id');
       if (id && id != null && id != undefined && id > 0) {
@@ -137,8 +215,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#alrtMsg {
-  margin-top: 32px;
+#imgLabel {
+  margin-top: 8px;
+}
+
+#user_img {
+  cursor: pointer;
+  text-align: center;
+}
+
+#alrtMsg,
+.succesMessage {
+  margin-top: 32px !important;
 }
 
 .btn--submit {

@@ -25,9 +25,8 @@ const storage = multer.diskStorage({
         name = name.replace("." + extension, "_");
         //le nom final sera : le nom original splité auquel on ajoute un timestamp et l'extension ex : bonjour_1122334455667.jpg
         callback(null, name + Date.now() + '.' + extension);
-    }
+    },
 });
 
 // On export le module, on lui passe l'objet storage, la méthode single pour dire que c'est un fichier unique et on précise que c'est une image
-module.exports = multer({ storage: storage, limits: { fileSize: 5000000 } }).single('image');
-
+module.exports = multer({ storage: storage, limits: { fileSize: 5000000 }, }).single('image');

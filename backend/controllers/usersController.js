@@ -201,14 +201,17 @@ exports.modifyUser = async (req, res) => {
         else {
             //on initialise des variables avec les anciennes valeurs si il y a des champs vides
             //var nom = req.body.user.nom ? yes : no;
-            //etc
-
             var nom = req.body.user_nom ? (req.body.user_nom) : (resultat[0].user_nom);
             var prenom = req.body.user_prenom ? (req.body.user_prenom) : (resultat[0].user_prenom);
             var age = req.body.user_age ? (req.body.user_age) : (resultat[0].user_age);
-            var image = req.file ? (`${req.protocol}://${req.get('host')}/images/${req.file.filename}`) : (resultat[0].user_img) ? (resultat[0].user_img.slice(35)) : ("");
+            var image = req.file ? (req.file.filename) : (resultat[0].user_img);
+            // console.log("-------req.file.filename-----")
+            // console.log(req.file.filename);
+            // console.log("------- ancienne image : resultat[0].user_img  --------");
+            // console.log(resultat[0].user_img);
+            // console.log("------image sauvé------");
+            // console.log(image);
             var service = req.body.user_service ? (req.body.user_service) : (resultat[0].user_service) ? (resultat[0].user_service) : ("");
-
 
             if (req.body.user_email) {
                 var newemail = req.body.user_email;
@@ -250,11 +253,7 @@ exports.modifyUser = async (req, res) => {
                     //si valide ajout à l'objet
                     modifyRequest.user_email = newemail;
                 }
-                //  console.log("----------------- l264 --")
-                //   console.log(modifyRequest);
             }
-
-
             // cas ou le reste du formulaire est invalide
             if (validUser.error) {
                 if (req.file) {
@@ -298,10 +297,10 @@ exports.modifyUser = async (req, res) => {
                     }
                     else {
                         //on supprime l'ancienne image et mise à jour de la db
-                        if (req.file && resultat[0].user_img.length > 35) {
-                            fs.unlinkSync(`images/${resultat[0].user_img.slice(35)}`);
+                        if (req.file) {
+                            fs.unlinkSync(`images/${resultat[0].user_img}`);
                         }
-                        return res.status(201).json({ message: "Utilisateur modifié !" });
+                        return res.status(201).json({ message: "Compte modifié !" });
                     }
                 });
             }
@@ -330,21 +329,21 @@ exports.deleteUser = async (req, res) => {
                 let images = [];
                 //suppression des images des posts, on stock les images dans un tableau
                 resultat.forEach(e => {
-                    images.push(e.post_img.slice(34));
+                    images.push(e.post_img);
                 });
 
                 //on supprimes les doublons du tableau images
                 let uniqueImages = [...new Set(images)];
                 //et on supprime les images du tableau du dossier post-images
                 uniqueImages.forEach(e => {
-                    if (e.length > 4) {
-                        fs.unlinkSync(`post-images/${e}`);
+                    if (e != null && e.length > 1) {
+                        fs.unlinkSync(`images/${e}`);
                         // console.log(e + " : supprimée !!!");
                     }
                 });
 
-                if (resultat[0].user_img.slice(35).length > 4) {
-                    fs.unlinkSync(`images/${resultat[0].user_img.slice(35)}`);
+                if (resultat[0].user_img.length > 4 && resultat[0].user_img != "defaulthuman.jpg") {
+                    fs.unlinkSync(`images/${resultat[0].user_img}`);
                 }
                 //suppression des entrées de la db
                 //SET SQL_SAFE_UPDATES = 0; ????

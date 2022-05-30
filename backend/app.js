@@ -49,5 +49,22 @@ app.use('/api/posts', postsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/comment', commentsRoutes);
 
+//gestion des exeption de multer
+const multer = require('multer');
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) { 
+        console.log(err);
+        return res.status(413).json({
+           message : 'Le fichier est trop volumineux !'
+        });
+    } else { 
+        return res.status(500).json({
+            message: "Une erreure est survenue !"
+        });
+    }
+});
+
+
+
 //export de l'app
 module.exports = app;

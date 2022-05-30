@@ -36,33 +36,29 @@ export default {
         user_password: this.user_password
       }
       axios.post('http://localhost:3000/api/users/login', formulaire)
-    
-      .then(res => {
-        if (res.status == 200) {
-          console.log(res.data);
-          console.log("===== token =======");
-          console.log(res.data.token);
-          //  enregistrer le token dans la session
-          sessionStorage.id = res.data.userId;
-          sessionStorage.token = res.data.token;
-          // rediriger vers /posts
-          router.push("/posts");
+
+        .then(res => {
+          if (res.status == 200) {
+            console.log(res.data);
+            console.log("===== token =======");
+            console.log(res.data.token);
+            //  enregistrer le token dans la session
+            sessionStorage.id = res.data.userId;
+            sessionStorage.token = res.data.token;
+            // rediriger vers /posts
+            router.push("/posts");
+          }
+          else {
+            //autre erreur inconnue : afficher le message dans le v if
+            this.messageError = "Erreur.";
+          }
+        })
+        .catch(error => {
+          // message du backend
+          this.messageError = error.response.data.message ? (error.response.data.message) : (error);
+          console.log(error);
         }
-        else {
-          //autre erreur inconnue : afficher le message dans le v if
-          this.messageError = "Erreur.";
-        }
-      })
-       .catch(error => {
-        // message du backend
-        if(error.response.data.message){
-          this.messageError = error.response.data.message;
-        }
-        else{
-        this.messageError = error;
-        console.log(error);
-        }
-      })
+        )
     }
   }
 

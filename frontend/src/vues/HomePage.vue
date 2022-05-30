@@ -2,11 +2,11 @@
  <!-- verif de la session -->
   <div v-if="session()">
     <FeedHeader />
-    <NewPost />
-    <hr>
+  
     <div id="feed">
       <PostsFeed />
     </div>
+  
   </div>
   <div v-else>
     <router-link to="/" id="connectezvous"><span>Connectez vous</span></router-link>
@@ -16,12 +16,10 @@
 <script>
 import FeedHeader from "../components/FeedHeader.vue";
 import PostsFeed from "../components/PostsFeed.vue";
-import NewPost from "../components/NewPost.vue";
 export default {
   components: {
     PostsFeed,
     FeedHeader,
-    NewPost
   },
   data() {
     return {
@@ -32,7 +30,6 @@ export default {
     //fonction pour vérifier si la session storage a été créé 
     session() {
       const id = sessionStorage.getItem('id');
-      console.log(id);
       if (id && id != null && id != undefined && id > 0) {
         return true;
       }
@@ -44,10 +41,13 @@ export default {
   // on lance la fonction à la création de la vue
   created() {
     this.session();
-  }
+  },
 }
 </script>
 
 <style lang="scss">
-
+html {
+  max-width:1200px;
+  margin:0 auto;
+}
 </style>

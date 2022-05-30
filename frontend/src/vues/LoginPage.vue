@@ -57,7 +57,7 @@ export default {
 
 <style lang="scss">
 #mainLogo {
-  max-height: 120px;
+  max-height: 200px;
 }
 #welcomeContainer {
   margin: 0 auto;

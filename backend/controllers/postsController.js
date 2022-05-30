@@ -49,6 +49,10 @@ exports.getPostById = async (req, res) => {
 
 // route pour créer un post
 exports.createPost = async (req, res) => {
+    // console.log("==========req reçue=========");
+    // console.log(req.body);
+    // console.log("=======file ??=======");
+    // console.log(req.file);
     let image = "";
     const userId = req.auth;
     const post = {
@@ -71,12 +75,18 @@ exports.createPost = async (req, res) => {
     else {
         //si img on ajoute son chemin à l'objet envoyé dans la db
         if (req.file) {
-            image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+            //image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+            image = `${req.file.filename}`;
         }
         post.post_img = image;
+        // console.log("---- post à enregistrer ----");
+        // console.log(post);
         //sauvegarde de l'objet en db
         db.query('INSERT INTO posts SET ?;', post, (err) => {
             if (err) {
+                if (req.file) {
+                    fs.unlinkSync(`images/${req.file.filename}`);
+                }
                 return res.status(400).send({ err });
             } else {
                 return res.status(201).json({ message: "Post créé dans la db" });
@@ -133,7 +143,7 @@ exports.modifyPost = async (req, res, err) => {
                                 fs.unlinkSync(`images/${oldImage}`);
                             }
                             //on enregistre le nouveau chemin dans l'objet post
-                            image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+                            image = req.file.filename;
                         }
                         //création de l'objet post pour la requete préparé
                         const post = {

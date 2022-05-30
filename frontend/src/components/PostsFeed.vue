@@ -1,10 +1,13 @@
 <template>
 
+  <NewPost />
+  <hr>
   <h2 class="titre">Fil d'actualités</h2>
   <div class="post" v-for="post in postsData" :key="post.post_id" :id="post.post_id">
     <div class="post--author">
       <div class="post--author--info" :id="post.post_author_id">
         <router-link :to="{ name: 'UserProfile', params: { id: post.post_author_id } }">
+        <!-- composant PostAuthor -->
           <PostAuthor :id="post.post_author_id" />
         </router-link>
       </div>
@@ -13,24 +16,24 @@
     </div>
     <h2 class="post--title">{{ post.post_title }} [id : {{ post.post_id }}]</h2>
     <span class="post--text">{{ post.post_text }}</span>
-    <div class="post--img--container">
+    <div v-if="post.post_img" class="post--img--container">
       <img class="post--img" :src="post.post_img" alt="image du post">
     </div>
-
-    <PostComments :id="post.post_id" />
-
+   <!-- composant PostComments -->
+    <PostComments :post="post" :id="post.post_id" />
   </div>
 
 </template>
 
 <script>
 import axios from 'axios';
+import NewPost from "../components/NewPost.vue"
 import PostComments from "./PostComments.vue"
 import PostAuthor from './PostAuthor.vue';
 
 export default {
-
   components: {
+    NewPost,
     PostComments,
     PostAuthor
   },
@@ -45,7 +48,14 @@ export default {
     async getPosts() {
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } }
+      const path = 'http://localhost:3000/images/'
       axios.get('http://localhost:3000/api/posts', header).then(res => {
+       // gestion du path des images
+        res.data.forEach(data => {
+          if(data.post_img){
+          data.post_img = path + data.post_img;
+          }
+        });
         this.postsData = res.data;
       })
     },
@@ -62,16 +72,11 @@ export default {
 .titre {
   margin: 0 auto;
   text-align: center;
-  color: royalblue;
-  border: 2px solid royalblue;
-  border-radius: 12px;
-  margin: 32px auto;
+  color: rgb(56, 154, 214);
   padding: 8px;
   width: 20%;
   min-width: 200px;
 }
-
-
 
 .comments--container {
   background: rgb(200, 208, 252);
@@ -156,12 +161,12 @@ export default {
   }
 
   &--reactions {
+    margin:8px;
     padding: 6px 0;
     width: 100%;
 
     &--likes {
       border: 2px solid skyblue;
-      ;
       border-radius: 8px;
       padding: 4px 16px;
       margin: 4px 12px;

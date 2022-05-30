@@ -88,11 +88,13 @@ export default {
         //201
         .then(res => {
           if (res.status == 201) {
+            this.alertMsg = "";
             window.alert("Compte créé avec succès, veuillez maintenant vous connecter !");
             this.openLogin();
           }
           else {
-            console.log("erroooooor")
+            this.alertMsg = "Erreur inatendue !"
+            console.log("error")
           }
         
         })

@@ -4,15 +4,16 @@ const db = require('../database_connect');
 const commentSchema = require('../models/comment');
 
 exports.comment = async (req, res) => {
-    const validPost = commentSchema.validate({ comment: req.body.text });
+  //  console.log(req);
+    const validPost = commentSchema.validate({ comment: req.body.comment_text });
     if (validPost.error) {
         return res.status(400).send(validPost.error.message);
     }
     else {
         const commented_post_id = parseInt(req.params.postId);
         const comment_author_id = req.auth;
-        const comment_text = req.body.text;
-        //console.log(comment);
+        const comment_text = req.body.comment_text;
+       // console.log(commented_post_id);
         db.query(`INSERT INTO comments (commented_post_id, comment_author_id, comment_text) VALUES (?,?,?);`, [commented_post_id, comment_author_id, comment_text], (err) => {
             if (err) {
                 return res.status(400).send(err);
@@ -47,7 +48,7 @@ exports.modifyComment = async (req, res) => {
     const userId = req.auth;
     //const postId = req.params.postId;
     const commentId = req.params.id;
-    const newComment = req.body.text;
+    const newComment = req.body.comment_text;
     // console.log("auth : " + userId + " postid : " + postId + " commentId : " + commentId + " newcomment : " + newComment);
     // console.log("--------------------------------");
     // console.log((newComment));
@@ -86,9 +87,8 @@ exports.deleteComment = async (req, res) => {
     const postId = req.params.postId;
     const commentId = req.params.id;
     db.query(`SELECT * FROM comments WHERE comment_id = ?;`, commentId, (err, resultat) => {
-        console.log(resultat[0].comment_author_id);
-        console.log(userId);
-
+        // console.log(resultat[0].comment_author_id);
+        // console.log(userId);
         if (err) {
             return res.status(400).send(err);
         }

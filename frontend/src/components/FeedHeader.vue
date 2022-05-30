@@ -62,7 +62,7 @@
 
 
     <!-- </div> -->
-    <hr>
+    
   </div>
 </template>
 
@@ -80,7 +80,6 @@ export default {
 
    async getUserId(){
        this.user_id = await (sessionStorage.getItem('id'));
-       console.log(this.user_id);
   },
   },
   created(){
@@ -93,9 +92,10 @@ export default {
 .header {
   &--img {
     margin: 0 auto;
+    margin-top:-32px;
     width: 200px;
     height: 200px;
-    background-image: url("../assets/logo.png");
+    background-image: url("../assets/logoSmall.png");
     background-size: 200px;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -105,7 +105,6 @@ export default {
   flex-direction: column;
 
   &--main {
-
     margin-block: 0;
     margin: 0 auto;
     margin-top: 40px;
@@ -239,7 +238,6 @@ aside {
   max-height: 140px;
   object-fit: cover;
 }
-
 
 @media screen and (max-width: 500px) {
   .header--welcome {
