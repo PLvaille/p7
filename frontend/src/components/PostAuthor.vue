@@ -42,7 +42,7 @@ export default {
     },
     computed: {
         fullname() {
-            return this.userNom + ' ' + this.userPrenom
+            return this.userPrenom + ' ' + this.userNom
         }
     },
     created() {

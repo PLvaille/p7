@@ -49,6 +49,7 @@
     </div>
 
     <!-- BLOCK COMMENTAIRES -->
+
     <div class="comment--container" v-if="displayComments" :style="[displayAllComments ?
     { 'background': 'linear-gradient(rgb(124, 205, 255), white)' } : {}]">
         <div class="singlecomment" v-for:="comment in comments" :key="comments.comment_id" :id="comment.comment_id">
@@ -67,8 +68,8 @@
                 </router-link>
 
             </div>
-            <span v-if="!modifyCommentReq" :id="comment.comment_id" class="comment--text">{{ comment.comment_text
-            }}</span>
+            <span v-if="comment.comment_id != commentToModif" :id="comment.comment_id" class="comment--text">
+                {{ comment.comment_text }}</span>
 
             <!-- FORM modifyComment -->
             <div v-else class="modifyComment" :id="comment.comment_id">
@@ -78,18 +79,19 @@
             </div>
 
             <!-- BOUTONS MODIFIER / SUPPRIMER UN COMMENTAIRES -->
-            <div class="comment--btn" v-if="isCommentAuthor" :key="comment.comment_id">
+            <div class="comment--btn" v-if="isAuthorLogin(comment.comment_author_id)">
                 <span @click="modifyCommentRequest(comment.comment_id)" class="modifyComment--btn"
                     id="modifyComment">🖊️</span>
                 <span @click="deleteComment" class="deleteComment--btn" id="deleteComment">❌</span>
             </div>
         </div>
-
+        
         <!-- NOUVEAU COMMENTAIRE -->
         <div class="comment--newComment">
             <NewComment :id="this.id" />
 
         </div>
+        
     </div>
 </template>
 
@@ -113,12 +115,21 @@ export default {
             postText: this.post.post_text,
             file: "",
             isCommentAuthor: false,
-            modifyCommentReq: false,
-
+            commentToModif: "",
         };
     },
     props: ['post', 'id', 'fullname'],
     methods: {
+        isAuthorLogin(id) {
+            console.log(id)
+            console.log(sessionStorage.getItem('id'))
+            if(sessionStorage.getItem('id') == id){
+            return true;
+            }
+            else {
+                return false;
+            }
+        },
         async getPostById() {
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -194,6 +205,10 @@ export default {
                         }
 
                         if (data.comment_author_id == userId) {
+                            // console.log("data author id")
+                            // console.log(data.comment_author_id);
+                            // console.log("const")
+                            // console.log(userId);
                             this.isCommentAuthor = true;
                         }
 
@@ -204,6 +219,7 @@ export default {
                     // console.log(res.data);
                     if (res.data.length > 0) {
                         this.comments = res.data;
+                        console.log(res.data)
                     }
                 })
                 .catch(error => {
@@ -216,7 +232,12 @@ export default {
             console.log("demande de modif");
             console.log('comment id : ' + commentId)
             console.log('post id :' + this.id);
-            this.modifyCommentReq = !this.modifyCommentReq;
+            if (this.commentToModif == commentId) {
+                this.commentToModif = "";
+            }
+            else {
+                this.commentToModif = commentId;
+            }
 
         },
         modifyComment() {
@@ -246,7 +267,7 @@ export default {
                 })
 
         },
-        async modifyRequest() {
+        modifyRequest() {
             this.modifyReq = !this.modifyReq;
         },
         uploadFile() {
@@ -302,6 +323,7 @@ export default {
         displayAllComments() { this.displayComments = !this.displayComments; },
     },
     created() {
+
         this.getPostById();
     },
     components: { NewComment }
