@@ -112,8 +112,12 @@ exports.deleteComment = async (req, res) => {
 };
 
 exports.addLike = async (req, res) => {
+   
     const userId = req.auth;
     const postId = req.params.postId;
+    //console.log("---- ADDLIKE ----");
+    // console.log(userId);
+    // console.log(postId);
 
     //verif que post exist
     db.query('SELECT post_id FROM posts WHERE post_id = ?;', postId, (err, resu) => {
@@ -126,12 +130,16 @@ exports.addLike = async (req, res) => {
         else {
             db.query('SELECT * FROM likes WHERE like_post_id = ? AND like_user_id = ?;', [postId, userId], (err, resultat) => {
                 if (err) {
+                    console.log("L 132")
+                    console.log(err)
                     return res.status(400).send(err);
                 }
                 else {
                     if (resultat[0] == undefined) {
                         db.query('INSERT INTO likes (like_user_id, like_post_id) VALUES (?,?);', [userId, postId], (err) => {
                             if (err) {
+                                console.log("L 140")
+                                console.log(err)
                                 return res.status(400).send(err);
                             }
                             else {
@@ -142,6 +150,8 @@ exports.addLike = async (req, res) => {
                     else if (resultat[0]) {
                         db.query('DELETE FROM likes WHERE like_id = ?', resultat[0].like_id, (err) => {
                             if (err) {
+                                console.log("L 152")
+                                console.log(err)
                                 return res.status(400).send(err);
                             }
                             else {

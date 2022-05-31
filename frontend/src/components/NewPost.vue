@@ -97,7 +97,7 @@ export default {
     border: solid 2px #999;
     border-radius: 12px;
     padding: 16px 24px 24px 24px;
-    width: 80%;
+    width: 86%;
     margin: 0 auto;
 
     &--text {

@@ -1,13 +1,18 @@
 <template>
     <!-- INFOS MSG -->
-    <p class="alertMessage" v-if="alertMsg">{{ alertMsg }}</p>
-    <p v-if="!postExist" class="succesMessage">{{ succesMessage }}</p>
+    <div>
+        <p class="alertMessage" v-if="alertMsg">{{ alertMsg }}</p>
+        <p v-if="!postExist" class="succesMessage">{{ succesMessage }}</p>
+    </div>
 
     <!-- BLOCK REACTIONS -->
-    <div class="post--reactions" v-if="postExist">
-        <span class="post--reactions--likes" id="likes--count">{{ likesCounter }} 👍🏼</span>
-        <span v-if="isAuthor" @click="modifyRequest" class="modifyPost" id="modifyPost">🖊️</span>
-        <span v-if="isAuthor" @click="deletePost" class="deletePost" id="deletePost">❌</span>
+    <div>
+        <span class="alertMessage" v-if="reactAlertMsg">{{ reactAlertMsg }}</span>
+        <div class="post--reactions" v-if="postExist">
+            <span v-if="isAuthor" @click="modifyRequest" class="modifyPost" id="modifyPost">🖊️</span>
+            <span @click="likePost" class="post--reactions--likes" id="likes--count">{{ likesCounter }} 👍🏼</span>
+            <span v-if="isAuthor" @click="deletePost" class="deletePost" id="deletePost">❌</span>
+        </div>
     </div>
 
     <!-- POST FORM SI CLICK @MODIFIER  -->
@@ -48,26 +53,34 @@
     { 'background': 'linear-gradient(rgb(124, 205, 255), white)' } : {}]">
         <div class="singlecomment" v-for:="comment in comments" :key="comments.comment_id" :id="comment.comment_id">
             <div class="comment--user">
-                <img id="user-image" class="comment--user--img" :src="comment.user_img"
-                    :alt="'photo de profil de ' + comment.user_prenom + ' ' + comment.user_nom" />
-                <div class="comment--user--info">
-                    <p class="comment--user--info--firstname" id="user-prenom"> {{ comment.user_prenom }} </p>
-                    <p class="comment--user--info--name" id="user-nom">{{ comment.user_nom }}</p>
-                    <p class="comment--user--info--date" id="comment-date">{{ comment.comment_date }}</p>
-                </div>
+                <router-link :to="{ name: 'UserProfile', params: { id: comment.comment_author_id } }">
+                    <img id="user-image" class="comment--user--img" :src="comment.user_img"
+                        :alt="'photo de profil de ' + comment.user_prenom + ' ' + comment.user_nom"
+                        :title="'photo de profil de ' + comment.user_prenom + ' ' + comment.user_nom" />
+
+                    <div class="comment--user--info">
+                        <p class="comment--user--info--firstname" id="user-prenom"> {{ comment.user_prenom }} </p>
+                        <p class="comment--user--info--name" id="user-nom">{{ comment.user_nom }}</p>
+                        <p class="comment--user--info--date" id="comment-date">{{ comment.comment_date }}</p>
+
+                    </div>
+                </router-link>
+
             </div>
-            <span v-if="!modifyCommentReq" class="comment--text" id="comment-text">{{ comment.comment_text }}</span>
-           
-           <!-- FORM ModifComment -->
-            <div v-else class="modifyComment">
-                <form @submit="modifyComment" class="mofifyComment"></form>
+            <span v-if="!modifyCommentReq" :id="comment.comment_id" class="comment--text">{{ comment.comment_text
+            }}</span>
+
+            <!-- FORM modifyComment -->
+            <div v-else class="modifyComment" :id="comment.comment_id">
+                <form @submit="modifyComment(comment.comment_id)"></form>
                 <textarea v-model="comment.comment_text"></textarea>
                 <input class="modifyComment--submit" type="submit" value="➕" />
             </div>
 
             <!-- BOUTONS MODIFIER / SUPPRIMER UN COMMENTAIRES -->
-            <div class="comment--btn" v-if="isCommentAuthor">
-                <span @click="modifyCommentRequest" class="modifyComment--btn" id="modifyComment">🖊️</span>
+            <div class="comment--btn" v-if="isCommentAuthor" :key="comment.comment_id">
+                <span @click="modifyCommentRequest(comment.comment_id)" class="modifyComment--btn"
+                    id="modifyComment">🖊️</span>
                 <span @click="deleteComment" class="deleteComment--btn" id="deleteComment">❌</span>
             </div>
         </div>
@@ -92,6 +105,7 @@ export default {
             isAuthor: false,
             succesMessage: "",
             alertMsg: "",
+            reactAlertMsg: "",
             alertMsgModif: "",
             postExist: true,
             modifyReq: false,
@@ -140,6 +154,31 @@ export default {
                     console.log(error);
                 });
         },
+        async likePost() {
+            const token = (sessionStorage.getItem("token"));
+            const header = { headers: { "Authorization": `Bearer ${token}` } };
+            const paramsId = this.id;
+            const body = {};
+            await axios.post(`http://localhost:3000/api/comment/${paramsId}/likes`, body, header)
+                .then(res => {
+                    console.log(res);
+                    this.reactAlertMsg = "";
+                    this.getLikes();
+                })
+                .catch(error => {
+                    if (error.response.data.message) {
+                        this.reactAlertMsg = error.response.data.message;
+                    }
+                    else if (error.response.data) {
+                        this.reactAlertMsg = error.response.data;
+                    }
+                    else {
+                        this.reactAlertMsg = error;
+                    }
+                    console.log(error);
+                })
+
+        },
         async getComments() {
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -153,6 +192,7 @@ export default {
                         if (data.user_img && data.user_img != "defaulthuman.jpg") {
                             data.user_img = `${path}${data.user_img}`;
                         }
+
                         if (data.comment_author_id == userId) {
                             this.isCommentAuthor = true;
                         }
@@ -171,10 +211,13 @@ export default {
                 });
 
         },
-        modifyCommentRequest(e) {
+
+        async modifyCommentRequest(commentId) {
             console.log("demande de modif");
-            e.preventDefault();
+            console.log('comment id : ' + commentId)
+            console.log('post id :' + this.id);
             this.modifyCommentReq = !this.modifyCommentReq;
+
         },
         modifyComment() {
             console.log("post du comment");
@@ -232,7 +275,7 @@ export default {
                         this.alertMsgModif = "";
                         setTimeout(this.$parent.getPosts(), 500);
                         this.modifyReq = false;
-                        this.router.push('/posts');
+                        this.$router.push('/posts');
 
                     }
                     else {
@@ -248,7 +291,11 @@ export default {
                     }
                 })
                 .catch(error => {
-                    this.alertMsgModif = error.response.data.message ? (error.response.data.message) : (error);
+                    if (error.response != undefined) {
+                        this.alertMsgModif = error.response.data;
+                    } else {
+                        this.alertMsgModif = error;
+                    }
                     console.log(error);
                 })
         },
@@ -262,9 +309,9 @@ export default {
 </script>
 
 <style lang="scss">
-    #modifBtn {
-        margin-bottom: 24px;
-    }
+#modifBtn {
+    margin-bottom: 24px;
+}
 
 .display--comments {
     & span {
@@ -272,7 +319,9 @@ export default {
     }
 
     &--on {
-        padding: 12px;
+        height: 64px;
+        padding-top: 4px;
+        border-top: solid 1px #fff;
 
         &:hover {
             cursor: pointer;
@@ -283,8 +332,8 @@ export default {
     }
 
     &--off {
-        margin-top: 4px;
-        padding: 4px 0px;
+        height: 64px;
+        padding-top: 4px;
         border-top: solid 1px #999;
         cursor: pointer;
         //background de base
@@ -297,16 +346,6 @@ export default {
     }
 }
 
-.singlecomment {
-    background: rgb(219, 233, 253);
-    margin: 2px auto;
-    width: 98%;
-    display: flex;
-    border: 2px solid white;
-    border-radius: 12px;
-    justify-content: space-between;
-
-}
 
 .deletePost {
     border: 2px solid red;
@@ -354,6 +393,7 @@ export default {
     }
 }
 
+
 .modifyComment {
     width: 76%;
     display: flex;
@@ -380,6 +420,18 @@ export default {
 
 }
 
+.singlecomment {
+    height: 70px;
+    background: rgb(219, 233, 253);
+    margin: 2px auto;
+    width: 98%;
+    display: flex;
+    border: 2px solid white;
+    border-radius: 12px;
+    justify-content: space-between;
+
+}
+
 .comment {
     &--btn {
         display: flex;
@@ -397,20 +449,27 @@ export default {
 
 
     &--container {
-        background: linear-gradient(rgb(46, 132, 185), white);
+        margin-top: -2px;
+        padding-bottom: 4px;
+
+        & a {
+            text-decoration: none;
+            color: black;
+            display: flex;
+            width: 100%;
+        }
     }
 
     &--newComment {
-        margin-top: 4px;
         margin-bottom: 4px;
 
         &--text {
-
             min-height: 48px;
             margin-left: 4px;
             justify-content: flex-start;
             min-width: 84%;
             max-width: 84%;
+            margin-bottom: 8px;
         }
 
         &--btn {
@@ -430,7 +489,9 @@ export default {
         cursor: pointer;
         display: flex;
         border-radius: 12px;
+        width: 30%;
         min-width: 150px;
+        max-width: 272px;
 
         img {
             overflow: hidden;
@@ -450,8 +511,9 @@ export default {
             text-align: left;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-around;
             border-right: 1px solid white;
+            width: 100%;
 
             &--name {
                 margin: 1px 0;
@@ -469,6 +531,7 @@ export default {
         }
 
         &--text {
+
             text-align: left;
             padding-left: 2px;
             border-radius: 12px;

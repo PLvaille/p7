@@ -85,14 +85,13 @@ export default {
 }
 
 .post {
-  border: 2px solid #555;
+  border: 3px solid rgb(56, 154, 214);
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   margin: 4px auto;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   width: 90%;
-  //background: linear-gradient(to bottom, rgb(182, 211, 255), white);
-  background-color: #044eff26;
+  background-color: #044fff20;
 
   &--author {
     position: relative;
@@ -103,7 +102,7 @@ export default {
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #555;
-    background-color: #1591ff5e;
+   // background-color: #1591ff5e;
 
     & a {
       display: flex;
@@ -134,18 +133,18 @@ export default {
     margin: 0;
     padding: 8px 4px;
     border-bottom: 1px solid #555;
-    background: rgb(56, 154, 214);
+    background: linear-gradient(to left, rgb(56, 154, 214), white,rgb(56, 154, 214));
   }
 
   &--text {
     font-weight: bold;
     display: block;
     background: white;
-    border-radius: 4px;
+    border-radius: 24px;
     border: 1px solid #999;
     margin: 12px auto 0 auto;
     padding: 24px;
-    width: 74%;
+    width: 50%;
   }
 
   &--img {

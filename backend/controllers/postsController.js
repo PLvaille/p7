@@ -89,7 +89,7 @@ exports.createPost = async (req, res) => {
                 }
                 return res.status(400).send({ err });
             } else {
-                return res.status(201).json({ message: "Post créé dans la db" });
+                return res.status(201).send("Post créé dans la db");
             }
         });
     }
@@ -109,7 +109,7 @@ exports.modifyPost = async (req, res, err) => {
             if (req.file) {
                 fs.unlinkSync(`images/${req.file.filename}`);
             }
-            return res.status(404).json({ message: "Poste introuvable" });
+            return res.status(404).send("Poste introuvable");
 
         }
         else {
@@ -119,7 +119,7 @@ exports.modifyPost = async (req, res, err) => {
                 if (req.file) {
                     fs.unlinkSync(`images/${req.file.filename}`);
                 }
-                return res.status(403).json({ message: "Vous ne pouvez pas modifier un post qui ne vous appartient pas !" });
+                return res.status(403).send("Vous ne pouvez pas modifier un post qui ne vous appartient pas !");
 
                 //si postid = postauthor
             } else {

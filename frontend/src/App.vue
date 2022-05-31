@@ -1,22 +1,30 @@
 <template>
-<head>
-  
-</head>
-  <router-view />  
+
+  <head>
+
+  </head>
+  <router-view />
 </template>
 
 <script>
 export default {
   name: 'App',
   components: {
-}
+  }
 }
 </script>
 
 <style lang="scss">
-.alertMessage {
-  color : red;
+html {
+  background: linear-gradient(to left, rgb(186, 216, 255), white, white, white, rgb(186, 216, 255));
+  max-width: 1400px;
+  margin: 0 auto;
 }
+
+.alertMessage {
+  color: red;
+}
+
 #connectezvous {
   position: relative;
   top: 160px;
@@ -26,10 +34,11 @@ export default {
   border: 2px solid black;
   border-radius: 16px;
   padding: 8px;
-  display : inline-block;
+  display: inline-block;
+
   &:hover {
     background: royalblue;
-    color : white;
+    color: white;
   }
 }
 
@@ -42,8 +51,8 @@ export default {
   padding: 8px 16px;
   margin: 0 auto;
   margin-top: 16px;
-  max-width:180px;
-  width:55%;
+  max-width: 180px;
+  width: 55%;
 
   &:hover {
     color: royalblue;
@@ -53,9 +62,9 @@ export default {
   }
 }
 
-body{
+body {
   position: relative;
-  background: linear-gradient(to left,rgb(56, 154, 214), white, white, white, white, rgb(56, 154, 214));
+
 }
 
 #app {

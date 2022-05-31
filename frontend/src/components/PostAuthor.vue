@@ -1,5 +1,5 @@
 <template>
-    <img class="post--author--img" :alt="'photo de profile de ' + fullname" :src="userImg" />
+    <img class="post--author--img" :alt="'photo du profil de ' + fullname" :src="userImg" :title="'photo du profil de ' + fullname" />
     <h3 class="post--author--name">{{ fullname }} </h3>
 </template>
 

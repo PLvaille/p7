@@ -1,7 +1,7 @@
 //ce fichier défini les fonctions de l'API
 //import des élements nécessaires
 //l'app utilise le framework express, basé sur node.js, qui a besoin d'un 'parser' afin qu'on manipule du json
-const express = require('express'); 
+const express = require('express');
 const app = express();
 app.use(express.json());
 // inutle ?
@@ -15,7 +15,7 @@ app.use(express.json());
 // app.use(cors());
 
 // //connexion à la DB
- const db = require('./database_connect');
+const db = require('./database_connect');
 
 //chemin du systeme de fichier
 const path = require('path');
@@ -52,15 +52,11 @@ app.use('/api/comment', commentsRoutes);
 //gestion des exeption de multer
 const multer = require('multer');
 app.use((err, req, res, next) => {
-    if (err instanceof multer.MulterError) { 
+    if (err instanceof multer.MulterError) {
         console.log(err);
-        return res.status(413).json({
-           message : 'Le fichier est trop volumineux !'
-        });
-    } else { 
-        return res.status(500).json({
-            message: "Une erreure est survenue !"
-        });
+        return res.status(413).send('Le fichier est trop volumineux !');
+    } else {
+        return res.status(500).send('Une erreure est survenue !');
     }
 });
 

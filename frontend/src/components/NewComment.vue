@@ -46,7 +46,7 @@ export default {
         })
         .catch(error => {
           if(error.response){
-          this.alertMsg = error.message;
+          this.alertMsg = error.response.data;
           }
           else {
             this.alertMsg = error;
@@ -67,9 +67,7 @@ export default {
   display : flex;
   justify-content: space-around;
   width:100%;
+  margin-bottom:-4px;
 
-}
-.comment--container {
-  background: none;
 }
 </style>

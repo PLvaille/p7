@@ -46,8 +46,5 @@ export default {
 </script>
 
 <style lang="scss">
-html {
-  max-width:1200px;
-  margin:0 auto;
-}
+
 </style>

@@ -15,19 +15,19 @@ router.get("/:postId", auth, multer, commentsController.getComments);
 
 //commenter un commentaire sur un post
 router.post("/:postId", auth, multer, commentsController.comment);
-//http://localhost:3000/api/posts/comment/29
+//http://localhost:3000/api/comment/:postid
 
 // //modifier un commentaire
 router.put("/:postId/:id", auth, multer, commentsController.modifyComment);
-//http://localhost:3000/api/posts/comment/24/11
+//http://localhost:3000/api/comment/:postid/:id/
 
 // //supprimer un commentaire
 router.delete("/:postId/:id", auth, multer, commentsController.deleteComment);
-//http://localhost:3000/api/posts/comment/29/13
+//http://localhost:3000/api/comment/:postid/:id
 
 // //ajouter/supprimer un like
 router.post("/:postId/likes", auth, multer, commentsController.addLike);
-// http://localhost:3000/api/posts/comment/29/like
+// http://localhost:3000/api/comment/:postid/likes
 
 router.get("/:postId/likes", auth, multer, commentsController.getLikes)
 
