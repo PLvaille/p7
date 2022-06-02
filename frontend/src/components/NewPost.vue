@@ -54,20 +54,21 @@ export default {
                 post_title: this.post_title,
                 post_text: this.post_text,
                 image: this.file,
-
             }
             axios.post('http://localhost:3000/api/posts/', body, header)
                 .then((res) => {
                     if (res.status == 201) {
-
-                        this.succesMessage = "Post créé ! ✔️";
                         //rafraichir la vue posts
                         this.$parent.getPosts();
+                        //vider les champs
+                        this.post_title = "";
+                        this.post_text = "";
+                        this.file = "";
+                        this.alertMsg = "";
                     }
                     else {
                         this.alertMsg = res;
                     }
-
                 })
                 .catch(error => {
                     if (error.response.data.message) {
@@ -76,13 +77,15 @@ export default {
                     else if (error.response.data) {
                         this.alertMsg = error.response.data;
                     }
+                    else if (error.message) {
+                        this.alertMsg = error.message;
+                    }
                     else {
                         this.alertMsg = "Une erreur inatendue est survenue";
                     }
                     console.log(error);
                 })
         }
-
     },
 }
 </script>

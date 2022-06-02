@@ -14,12 +14,12 @@
           <label>Votre image actuelle :</label>
           <img :src="data.user_img" alt="votre image de profil" class="user-img">
           <label for="email"> *Adresse email :</label>
-          <input type="text" name="user_email" id="user_email" :default="data.user_email" required />
+          <input type="text" name="user_email" id="user_email" v-model="data.user_email" />
           <label for="password"> *Votre mot de passe:</label>
-          <input type="password" v-model="user_password" minlength="8" name="user_password" id="user_password" required>
+          <input type="password" v-model="user_password" minlength="8" name="user_password" id="user_password">
           <label for="passwordConfirm"> *Confirmez votre mot de passe :</label>
           <input type="password" minlength="8" @change="confirmPassword()" v-model="password_confirm"
-            name="password_confirm" id="passwordConfirm" required>
+            name="password_confirm" id="passwordConfirm">
           <label for="nom"> *Votre nom :</label>
           <input type="text" minlength="2" maxlength="30" name="user_nom" id="user_nom" :value="data.user_nom" required>
           <label for="prenom"> *Votre prénom :</label>
@@ -47,7 +47,6 @@
           <input class="btn btn--delete" type="submit" id="btn-delete" value="Supprimer le compte 🗑️" />
         </fieldset>
       </form>
-
     </div>
 
     <div class="container" v-else>
@@ -92,16 +91,32 @@ export default {
     }
   },
   methods: {
+    session() {
+      const id = sessionStorage.getItem('id');
+      if (id && id != null && id != undefined && id > 0) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    },
     uploadFile() {
       //on prend le file avec $refs
       //files est un tableau de l'objet file dont on prend l'index 0 = premier fichier
       this.file = this.$refs.file.files[0];
     },
-
+    confirmPassword() {
+      if (this.user_password != this.password_confirm) {
+        this.alertMsg = "Votre confirmation de mot de passe n'est pas identique !"
+      }
+      else {
+        this.alertMsg = "";
+      }
+    },
     async modifyUser(e) {
       e.preventDefault();
       const token = (sessionStorage.getItem('token'));
-      const id = (sessionStorage.getItem('id'));
+      const id = window.location.href.slice(27);
       const config = {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -110,6 +125,7 @@ export default {
       };
       // console.log("ID + config");
       // console.log(id, config);
+      //utiliser ref ???
       const user_nom = document.getElementById('user_nom').value;
       const user_prenom = document.getElementById('user_prenom').value;
       const user_email = document.getElementById('user_email').value;
@@ -127,8 +143,6 @@ export default {
         image: this.file,
       }
 
-      // console.log("======= body =======");
-      // console.log(body);
       await axios.put(`http://localhost:3000/api/users/${id}`, body, config)
         .then(res => {
           //console.log(res);
@@ -137,9 +151,13 @@ export default {
           setTimeout(this.getUser(), 300);
         })
         .catch(error => {
-          if (error.response.data) {
+          if (error.response.data.message) {
             this.succesMessage = "";
             this.alertMsg = error.response.data.message;
+          }
+          else if (error.response.data) {
+            this.succesMessage = "";
+            this.alertMsg = error.response.data;
           }
           else {
             this.succesMessage = "";
@@ -161,48 +179,45 @@ export default {
           router.push('/');
         })
         .catch(error => {
-          console.log(error);
-          this.alertMsg = error;
+          if (error.response.data.message) {
+            this.succesMessage = "";
+            this.alertMsg = error.response.data.message;
+          }
+          else if (error.response.data) {
+            this.succesMessage = "";
+            this.alertMsg = error.response.data;
+          }
+          else {
+            this.succesMessage = "";
+            this.alertMsg = error;
+          }
+          console.log(error)
         })
-    },
-
-    confirmPassword() {
-      if (this.user_password != this.password_confirm) {
-        this.alertMsg = "Votre confirmation de mot de passe n'est pas identique !"
-      }
-      else {
-        this.alertMsg = "";
-      }
     },
     async getUser() {
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } };
       const searchId = window.location.href.slice(27);
-      const path = 'http://localhost:3000/images/'
+      const defaultImgPath = require('../assets/defaulthuman.jpg');
       await axios.get('http://localhost:3000/api/users/' + searchId, header)
         .then(res => {
           this.data = res.data[0];
-          this.data.user_img = path + res.data[0].user_img;
+          if (this.data.user_img == "" || this.data.user_img == null || this.data.user_img == undefined) {
+            this.data.user_img = defaultImgPath;
+          }
+          else {
+            this.data.user_img = res.data[0].user_img;
+          }
           this.data.user_date = (this.data.user_date.slice(0, 16).replace('T', ' à ').replace('"', ''));
           //s'il sagit du compte de l'user, le back renvoi le mail
-          if (res.data[0].user_email) {
+          if (res.data[0].user_email || sessionStorage.getItem('id') == 1) {
             return this.isUser = true;
           }
         })
         .catch(error => {
-          console.log(error);
-
+          //  console.log(error);
           return this.alertMsg = error;
         })
-    },
-    session() {
-      const id = sessionStorage.getItem('id');
-      if (id && id != null && id != undefined && id > 0) {
-        return true;
-      }
-      else {
-        return false;
-      }
     },
   },
   components: {

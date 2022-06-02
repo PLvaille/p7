@@ -39,9 +39,9 @@ export default {
 
         .then(res => {
           if (res.status == 200) {
-            console.log(res.data);
-            console.log("===== token =======");
-            console.log(res.data.token);
+            // console.log(res.data);
+            // console.log("===== token =======");
+            // console.log(res.data.token);
             //  enregistrer le token dans la session
             sessionStorage.id = res.data.userId;
             sessionStorage.token = res.data.token;
@@ -56,7 +56,7 @@ export default {
         .catch(error => {
           // message du backend
           this.messageError = error.response.data.message ? (error.response.data.message) : (error);
-          console.log(error);
+         // console.log(error);
         }
         )
     }

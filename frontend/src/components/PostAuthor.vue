@@ -11,7 +11,7 @@ export default {
             userData: {},
             userNom: "",
             userPrenom: "",
-            userImg: "",
+            userImg: require('../assets/defaulthuman.jpg'),
         }
     },
     props: ['id'],
@@ -25,15 +25,15 @@ export default {
             const token = (sessionStorage.getItem('token'));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
             const paramsId = this.id;
-            const path = 'http://localhost:3000/images/'
+            //const path = 'http://localhost:3000/images/'
             await axios.get('http://localhost:3000/api/users/' + paramsId, header)
                 .then(res => {
                     this.userData = res.data;
-                    // console.log("POST AUTHOR |` getUsers")
-                    // console.log(res.data);
                     this.userNom = this.userData[0].user_nom;
                     this.userPrenom = this.userData[0].user_prenom;
-                    this.userImg = path+this.userData[0].user_img;
+                    if(this.userData[0].user_img && this.userData[0].user_img.length > 1){
+                        this.userImg = this.userData[0].user_img;
+                    }
                 })
                 .catch(error => {
                     console.log(error);

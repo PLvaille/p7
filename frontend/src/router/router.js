@@ -6,6 +6,7 @@ import UserProfile from "../components/UserProfil";
 import NotFound from "../components/NotFound";
 
 
+
 const routes = [{
     name: 'LoginPage',
     path: '/',
@@ -44,3 +45,6 @@ const router = createRouter({
 });
 
 export default router;
+
+
+

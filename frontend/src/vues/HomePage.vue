@@ -1,12 +1,16 @@
 <template>
- <!-- verif de la session -->
+  <!-- verif de la session -->
   <div v-if="session()">
+
+    <!-- header -->
     <FeedHeader />
-  
-    <div id="feed">
-      <PostsFeed />
+
+    <!-- fil d'actualité -->
+    <div id="feed" class="feed">
+      <PostsFeed/>
     </div>
-  
+
+
   </div>
   <div v-else>
     <router-link to="/" id="connectezvous"><span>Connectez vous</span></router-link>
@@ -24,13 +28,15 @@ export default {
   data() {
     return {
       sessionTrue: 'Boolean',
+      feedHeight : '',
     }
   },
   methods: {
     //fonction pour vérifier si la session storage a été créé 
     session() {
       const id = sessionStorage.getItem('id');
-      if (id && id != null && id != undefined && id > 0) {
+      const token = sessionStorage.getItem('token');
+      if (id && id != null && id != undefined && id > 0 && token) {
         return true;
       }
       else {
@@ -46,5 +52,4 @@ export default {
 </script>
 
 <style lang="scss">
-
 </style>

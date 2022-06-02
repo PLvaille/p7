@@ -19,8 +19,8 @@ require('dotenv').config({
 // création d'un utlisateur, email doit être valide (et unique mais c'est géré côté db)
 exports.createNewUser = async (req, res) => {
     //image par défaut si pas de req.file  
-    if(!req.file) {
-    var image = `${req.protocol}://${req.get('host')}/images/defaulthuman.jpg`;
+    if (!req.file) {
+        var image = "";
     }
     //tester null 
     if (!req.body.user_email || !req.body.user_password) {
@@ -143,31 +143,40 @@ exports.login = async (req, res) => {
 exports.getUserById = async (req, res) => {
     const requestedid = req.params.id;
     const userId = req.auth;
-    //on peut pas request l'admin
+    //si requete sur l'admin que le nom prenom
     if (requestedid == 1) {
-        return res.status(403).json({ message: "vous ne pouvez pas consulter ce profil" });
-    }
-    db.query('SELECT * FROM users WHERE user_id = ?', requestedid, (err, resultat) => {
-        if (err) {
-            return res.status(400).json({ err });
-        }
-        else if (!resultat[0]) {
-            return res.status(404).json({ message: "Utilisateur introuvable" });
-        }
-        else {
-            if (userId == requestedid || userId == 1) {
-                //si l'utilisateur consulte son propre profile
-                delete resultat[0].user_password;
-                return res.status(200).json(resultat);
+        db.query('SELECT user_nom, user_prenom, user_age, user_date FROM users WHERE user_id = 1', (error, result) => {
+            if (error) {
+                res.status(400).json({ error });
             }
             else {
-                //on n'envoie pas le password et le mail à un autre utilisateur, on les delete donc de l'objet      
-                delete resultat[0].user_password;
-                delete resultat[0].user_email;
-                return res.status(200).json(resultat);
+                res.status(200).json(result);
             }
-        }
-    })
+        })
+    }
+    else {
+        db.query('SELECT * FROM users WHERE user_id = ?', requestedid, (err, resultat) => {
+            if (err) {
+                return res.status(400).json({ err });
+            }
+            else if (!resultat[0]) {
+                return res.status(404).json({ message: "Utilisateur introuvable" });
+            }
+            else {
+                if (userId == requestedid || userId == 1) {
+                    //si l'utilisateur consulte son propre profile
+                    delete resultat[0].user_password;
+                    return res.status(200).json(resultat);
+                }
+                else {
+                    //on n'envoie pas le password et le mail à un autre utilisateur, on les delete donc de l'objet      
+                    delete resultat[0].user_password;
+                    delete resultat[0].user_email;
+                    return res.status(200).json(resultat);
+                }
+            }
+        })
+    }
 };
 
 exports.modifyUser = async (req, res) => {
@@ -176,7 +185,7 @@ exports.modifyUser = async (req, res) => {
     const requestedId = req.params.id;
     //cas ou on veut modifier l'admin
     if (requestedId == 1) {
-        return res.status(403).json({ message: "Requête interdite !" });
+        return res.status(403).json({ message: "Modifications interdites !" });
     }
     //on récupere les infos de l'utilisateur à l'id demandé
     db.query(`SELECT * FROM users WHERE user_id = ?;`, requestedId, (error, resultat) => {
@@ -275,7 +284,7 @@ exports.modifyUser = async (req, res) => {
                         if (req.file) {
                             fs.unlinkSync(`images/${req.file.filename}`)
                         }
-                        return res.status(400).send("Votre mot de passe doit contenir 8 caractères minimun, au moins 1 majuscule, 1 minuscule et sans espaces, et ne doit pas être trop simple");
+                        return res.status(400).send("Le mot de passe doit contenir 8 caractères minimun, au moins 1 majuscule, 1 minuscule et sans espaces, et ne doit pas être trop simple");
                     }
                     //si le password indiqué est valide on le hash
                     else if (passwordSchema.validate(password)) {
@@ -316,7 +325,7 @@ exports.deleteUser = async (req, res) => {
     const userToDelete = req.params.id;
     //on sécurise l'admin
     if (userToDelete == 1) {
-        return res.status(403).json("Requête impossible.")
+        return res.status(403).json("Impossible de supprimer l'admin !")
     }
     const userId = req.auth;
     if (userToDelete == userId || userId == 1) {
@@ -334,7 +343,7 @@ exports.deleteUser = async (req, res) => {
 
                 //on supprimes les doublons du tableau images
                 let uniqueImages = [...new Set(images)];
-                //et on supprime les images du tableau du dossier post-images
+                //et on supprime les images du tableau du dossier images
                 uniqueImages.forEach(e => {
                     if (e != null && e.length > 1) {
                         fs.unlinkSync(`images/${e}`);
@@ -342,7 +351,7 @@ exports.deleteUser = async (req, res) => {
                     }
                 });
 
-                if (resultat[0].user_img.length > 4 && resultat[0].user_img != "defaulthuman.jpg") {
+                if (resultat[0].user_img.length > 4) {
                     fs.unlinkSync(`images/${resultat[0].user_img}`);
                 }
                 //suppression des entrées de la db
@@ -350,7 +359,7 @@ exports.deleteUser = async (req, res) => {
                 db.query(`DELETE users, posts, comments, likes 
                 FROM users
                 LEFT JOIN posts ON (users.user_id = posts.post_author_id) 
-                LEFT JOIN comments ON (comments.commented_post_id = posts.post_id) 
+                LEFT JOIN comments ON (comments.comment_author_id = posts.post_author_id) 
                 LEFT JOIN likes ON (likes.like_user_id = users.user_id) 
                 WHERE users.user_id = ?;`, userToDelete, (err) => {
                     if (err) {
@@ -364,7 +373,7 @@ exports.deleteUser = async (req, res) => {
         }); //fin 1ere query
     } //fin if userTodelete == userId || userId == 1
     else {
-        return res.status(403).json({ message: "Requête interdite, vous ne pouvez pas supprimer un autre utilisateur !" });
+        return res.status(403).json({ message: "Vous ne pouvez pas supprimer un autre utilisateur !" });
     }
 };
 

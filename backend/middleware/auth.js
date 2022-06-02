@@ -10,8 +10,6 @@ const jwt = require('jsonwebtoken');
 const db = require('../database_connect');
 
 module.exports = (req, res, next) => {
-    //  console.log("==== processing auth ======")
-    //  console.log(req.headers.authorization);
     try {
         //on recup le token de la partie authorization du header de la requete
         const token = req.headers.authorization.split(' ')[1];
@@ -25,7 +23,6 @@ module.exports = (req, res, next) => {
             req.auth = userId;
             next();
         }
-
         else {
             //sinon on verifie que l'id de l'user existe
             if (!userId) {
@@ -48,6 +45,7 @@ module.exports = (req, res, next) => {
         }
     } catch {
         //status 401 non autorisé
-        res.status(401).send(`Requête non authentifiée, connectez vous !`);
+        //res.status(401).send(`Requête non authentifiée, connectez vous !`);
+        res.status(401).send(error);
     }
 };

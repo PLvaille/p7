@@ -1,27 +1,32 @@
 <template>
-
+  <!-- block pour nouveau post -->
   <NewPost />
   <hr>
-  <h2 class="titre">Fil d'actualités</h2>
-  <div class="post" v-for="post in postsData" :key="post.post_id" :id="post.post_id">
-    <div class="post--author">
-      <div class="post--author--info" :id="post.post_author_id">
-        <router-link :to="{ name: 'UserProfile', params: { id: post.post_author_id } }">
-        <!-- composant PostAuthor -->
-          <PostAuthor :id="post.post_author_id" />
-        </router-link>
-      </div>
 
-      <p class="post--author--date">{{ post.post_date }}</p>
+  <!-- fil d'actualités -->
+  <h2 class="titre">Fil d'actualités</h2>
+  <div class="allposts">
+    <div class="post" v-for="post in postsData" :key="post.post_id">
+      <div class="post--author">
+        <div class="post--author--info">
+          <router-link :to="{ name: 'UserProfile', params: { id: post.post_author_id } }">
+            <!-- composant PostAuthor -->
+            <PostAuthor :id="post.post_author_id" />
+          </router-link>
+        </div>
+
+        <p class="post--author--date">{{ post.post_date }}</p>
+      </div>
+      <h2 class="post--title">{{ post.post_title }}</h2>
+      <span class="post--text">{{ post.post_text }}</span>
+      <div v-if="post.post_img" class="post--img--container">
+        <img class="post--img" :src="post.post_img" alt="image du post">
+      </div>
+      <!-- composant PostComments -->
+      <PostComments :post="post" :id="post.post_id" />
     </div>
-    <h2 class="post--title">{{ post.post_title }} [id : {{ post.post_id }}]</h2>
-    <span class="post--text">{{ post.post_text }}</span>
-    <div v-if="post.post_img" class="post--img--container">
-      <img class="post--img" :src="post.post_img" alt="image du post">
-    </div>
-   <!-- composant PostComments -->
-    <PostComments :post="post" :id="post.post_id" />
   </div>
+      <button class="loadMore" @click="morePosts">↕️ Afficher plus de post ↕️</button>
 
 </template>
 
@@ -37,35 +42,42 @@ export default {
     PostComments,
     PostAuthor
   },
-
   data: () => {
     return {
-      postsData: {},
+      postsData:[],
+      lazy: 0,
     }
   },
   methods: {
     //fonction pour recuperer les posts de la db
-    async getPosts() {
+    getPosts(lazy) {
       const token = (sessionStorage.getItem('token'));
-      const header = { headers: { "Authorization": `Bearer ${token}` } }
-      const path = 'http://localhost:3000/images/'
-      axios.get('http://localhost:3000/api/posts', header).then(res => {
-       // gestion du path des images
-        res.data.forEach(data => {
-          if(data.post_img){
-          data.post_img = path + data.post_img;
-          }
-        });
-        this.postsData = res.data;
-      })
+      const header = { headers: { "Authorization": `Bearer ${token}` } };
+      const path = 'http://localhost:3000/images/';
+      axios.get(`http://localhost:3000/api/posts/all/` + lazy, header)
+        .then(res => {
+          // gestion du path des images
+          res.data.forEach(data => {
+            if (data.post_img) {
+              data.post_img = path + data.post_img;
+            }
+            //pour récuperer tous les posts suivants
+            this.postsData.push(data)
+          });
+        })
+    },
+    morePosts() {
+      this.lazy++;
+      console.log('click + de post');
+      console.log(this.lazy);
+      this.getPosts(this.lazy);
     },
   },
   //a la creation de la page on lance la fonction tout de suite
   created() {
-       this.getPosts();
+    this.getPosts(this.lazy);
   },
 }
-
 </script>
 
 <style lang="scss">
@@ -102,7 +114,7 @@ export default {
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #555;
-   // background-color: #1591ff5e;
+    // background-color: #1591ff5e;
 
     & a {
       display: flex;
@@ -133,7 +145,7 @@ export default {
     margin: 0;
     padding: 8px 4px;
     border-bottom: 1px solid #555;
-    background: linear-gradient(to left, rgb(56, 154, 214), white,rgb(56, 154, 214));
+    background: linear-gradient(to left, rgb(56, 154, 214), white, rgb(56, 154, 214));
   }
 
   &--text {
@@ -142,7 +154,7 @@ export default {
     background: white;
     border-radius: 24px;
     border: 1px solid #999;
-    margin: 12px auto 0 auto;
+    margin: 12px auto;
     padding: 24px;
     width: 50%;
   }
@@ -160,15 +172,19 @@ export default {
   }
 
   &--reactions {
-    margin:8px;
+    margin: 8px auto;
     padding: 6px 0;
-    width: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+
 
     &--likes {
       border: 2px solid skyblue;
       border-radius: 8px;
       padding: 4px 16px;
       margin: 4px 12px;
+      min-width: 40px;
 
       &:hover {
         cursor: pointer;

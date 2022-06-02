@@ -9,11 +9,18 @@ const fs = require('fs');
 //route pour récupérer les (derniers) posts
 // incomplet : prevoir lazy load, LIMIT 10 (ou 9 ??) avec index*n et n=10 (index commence à 0 ?)
 exports.getAllPosts = async (req, res) => {
-
-    // en 1 seule requete
-    // post + commentaires + likes
-
-    db.query('SELECT * FROM posts ORDER BY post_date DESC;', (err, resultat) => {
+    console.log("param reçu | getAllPosts");
+   // console.log(req)
+   console.log(req.params);
+   var offset = req.params.page;
+   if(offset > 0){
+   offset *= 10;
+   }
+   console.log("offset");
+   console.log(offset);
+    
+    // faire en 1 seule requete posts + commentaires + likes ?
+    db.query('SELECT * FROM posts ORDER BY post_date DESC LIMIT 10 OFFSET ?;', parseInt(offset), (err, resultat) => {
         if (err) {
             return res.status(400).send({ err });
         }
@@ -31,7 +38,6 @@ exports.getAllPosts = async (req, res) => {
 
 //route pour récupérer un post ses commentaires et likes avec son id
 exports.getPostById = async (req, res) => {
-
     let id = req.params.id;
     //'SELECT * FROM posts LEFT JOIN comments ON (posts.post_id = comments.commented_post_id) WHERE post_id = ? ORDER BY comment_date ASC;'
     db.query('SELECT * FROM posts WHERE post_id = ? ORDER BY post_date ASC;', id, (err, resultat) => {

@@ -5,7 +5,7 @@
         <p v-if="!postExist" class="succesMessage">{{ succesMessage }}</p>
     </div>
 
-    <!-- BLOCK REACTIONS -->
+    <!-- BLOCK REACTIONS / MODIF / DELETE POST -->
     <div>
         <span class="alertMessage" v-if="reactAlertMsg">{{ reactAlertMsg }}</span>
         <div class="post--reactions" v-if="postExist">
@@ -49,7 +49,6 @@
     </div>
 
     <!-- BLOCK COMMENTAIRES -->
-
     <div class="comment--container" v-if="displayComments" :style="[displayAllComments ?
     { 'background': 'linear-gradient(rgb(124, 205, 255), white)' } : {}]">
         <div class="singlecomment" v-for:="comment in comments" :key="comments.comment_id" :id="comment.comment_id">
@@ -72,26 +71,30 @@
                 {{ comment.comment_text }}</span>
 
             <!-- FORM modifyComment -->
-            <div v-else class="modifyComment" :id="comment.comment_id">
-                <form @submit="modifyComment(comment.comment_id)"></form>
-                <textarea v-model="comment.comment_text"></textarea>
-                <input class="modifyComment--submit" type="submit" value="➕" />
+            <div v-else class="modifyComment">
+                <form class="modifyComment--form" @submit="submitModifyComment($event, comment.comment_id)">
+                    <textarea v-model="comment.comment_text" ref="modifiedText"></textarea>
+                    <input class="modifyComment--submit" type="submit" value="➕" />
+                    <span class="alertMessage" v-if="commentAlertMsg">{{ commentAlertMsg }}</span>
+                </form>
             </div>
+
 
             <!-- BOUTONS MODIFIER / SUPPRIMER UN COMMENTAIRES -->
             <div class="comment--btn" v-if="isAuthorLogin(comment.comment_author_id)">
-                <span @click="modifyCommentRequest(comment.comment_id)" class="modifyComment--btn"
+                <span @click="clickModifyComment(comment.comment_id)" class="modifyComment--btn"
                     id="modifyComment">🖊️</span>
-                <span @click="deleteComment" class="deleteComment--btn" id="deleteComment">❌</span>
+                <span @click="deleteComment(comment.comment_id)" class="deleteComment--btn" id="deleteComment">❌</span>
             </div>
+            <div v-else class="comment--btn"></div>
         </div>
-        
+
         <!-- NOUVEAU COMMENTAIRE -->
         <div class="comment--newComment">
             <NewComment :id="this.id" />
 
         </div>
-        
+
     </div>
 </template>
 
@@ -108,6 +111,7 @@ export default {
             succesMessage: "",
             alertMsg: "",
             reactAlertMsg: "",
+            commentAlertMsg: "",
             alertMsgModif: "",
             postExist: true,
             modifyReq: false,
@@ -116,20 +120,12 @@ export default {
             file: "",
             isCommentAuthor: false,
             commentToModif: "",
+            modifiedText: "",
         };
     },
     props: ['post', 'id', 'fullname'],
     methods: {
-        isAuthorLogin(id) {
-            console.log(id)
-            console.log(sessionStorage.getItem('id'))
-            if(sessionStorage.getItem('id') == id){
-            return true;
-            }
-            else {
-                return false;
-            }
-        },
+        //post
         async getPostById() {
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -137,7 +133,7 @@ export default {
             const userId = sessionStorage.getItem("id");
             await axios.get("http://localhost:3000/api/posts/" + paramsId, header)
                 .then(res => {
-                    if (res.data[0].post_author_id == userId) {
+                    if (res.data[0].post_author_id == userId || sessionStorage.getItem('id') == 1) {
                         return this.isAuthor = true;
                     }
                     else {
@@ -146,129 +142,12 @@ export default {
                 })
                 .then(this.getLikes())
                 .then(this.getComments())
-                .catch(error => {
-                    console.log(error);
+                .catch(() => {
+                    console.log("error");
                 });
         },
-        async getLikes() {
-            const token = (sessionStorage.getItem("token"));
-            const header = { headers: { "Authorization": `Bearer ${token}` } };
-            const paramsId = this.id;
-            await axios.get(`http://localhost:3000/api/comment/${paramsId}/likes`, header)
-                .then(res => {
-                    // console.log("==== getLikes " + this.id + "--- response ====");
-                    // console.log(res.data);
-                    this.likesCounter = res.data.length;
-                    //console.log(this.likesCounter);
-                })
-                .catch(error => {
-                    console.log(error);
-                });
-        },
-        async likePost() {
-            const token = (sessionStorage.getItem("token"));
-            const header = { headers: { "Authorization": `Bearer ${token}` } };
-            const paramsId = this.id;
-            const body = {};
-            await axios.post(`http://localhost:3000/api/comment/${paramsId}/likes`, body, header)
-                .then(res => {
-                    console.log(res);
-                    this.reactAlertMsg = "";
-                    this.getLikes();
-                })
-                .catch(error => {
-                    if (error.response.data.message) {
-                        this.reactAlertMsg = error.response.data.message;
-                    }
-                    else if (error.response.data) {
-                        this.reactAlertMsg = error.response.data;
-                    }
-                    else {
-                        this.reactAlertMsg = error;
-                    }
-                    console.log(error);
-                })
-
-        },
-        async getComments() {
-            const token = (sessionStorage.getItem("token"));
-            const header = { headers: { "Authorization": `Bearer ${token}` } };
-            const paramsId = this.id;
-            const userId = sessionStorage.getItem('id');
-            const path = 'http://localhost:3000/images/'
-            await axios.get(`http://localhost:3000/api/comment/${paramsId}`, header)
-                .then(res => {
-                    // gestion des images
-                    res.data.forEach(data => {
-                        if (data.user_img && data.user_img != "defaulthuman.jpg") {
-                            data.user_img = `${path}${data.user_img}`;
-                        }
-
-                        if (data.comment_author_id == userId) {
-                            // console.log("data author id")
-                            // console.log(data.comment_author_id);
-                            // console.log("const")
-                            // console.log(userId);
-                            this.isCommentAuthor = true;
-                        }
-
-                    });
-                    // gestion propriété du commentaire
-                    // console.log("response")
-                    // console.log(userId);
-                    // console.log(res.data);
-                    if (res.data.length > 0) {
-                        this.comments = res.data;
-                        console.log(res.data)
-                    }
-                })
-                .catch(error => {
-                    console.log(error);
-                });
-
-        },
-
-        async modifyCommentRequest(commentId) {
-            console.log("demande de modif");
-            console.log('comment id : ' + commentId)
-            console.log('post id :' + this.id);
-            if (this.commentToModif == commentId) {
-                this.commentToModif = "";
-            }
-            else {
-                this.commentToModif = commentId;
-            }
-
-        },
-        modifyComment() {
-            console.log("post du comment");
-        },
-        async deletePost() {
-            const token = (sessionStorage.getItem("token"));
-            const header = { headers: { "Authorization": `Bearer ${token}` } };
-            const paramsId = this.id;
-            await axios.delete("http://localhost:3000/api/posts/" + paramsId, header)
-                .then(res => {
-                    if (res.status == 200) {
-                        this.succesMessage = res.data;
-                        this.alertMsg = "";
-                        this.postExist = false;
-                        this.
-                            setTimeout(this.$parent.getPosts(), 500);
-                    }
-                    else {
-                        this.succesMessage = "";
-                        this.alertMsg = res.error ? (res.error) : (res.data) ? (res.data) : (res);
-                        console.log(res);
-                    }
-                })
-                .catch(error => {
-                    console.log(error);
-                })
-
-        },
-        modifyRequest() {
-            this.modifyReq = !this.modifyReq;
+        displayAllComments() {
+            this.displayComments = !this.displayComments;
         },
         uploadFile() {
             //on prend le file avec $refs
@@ -301,26 +180,189 @@ export default {
                     }
                     else {
                         this.succesMessageModif = "";
-
                         if (res.response.data.message) {
                             this.alertMsgModif = res.response.data.message;
                         }
                         else {
                             this.alertMsgModif = res.error ? (res.error) : (res);
                         }
-                        console.log(res.response.data.message)
+                       // console.log(res.response.data.message)
                     }
                 })
                 .catch(error => {
-                    if (error.response != undefined) {
+                    if (error.response.data.message) {
+                        this.alertMsgModif = error.response.data.message;
+
+                    }else if (error.response.data.code) {
+                        this.alertMsgModif = error.message;
+
+                    } else if (error.response.data) {
                         this.alertMsgModif = error.response.data;
-                    } else {
+                    }
+                    else {
                         this.alertMsgModif = error;
                     }
-                    console.log(error);
+                    //console.log(error);
                 })
         },
-        displayAllComments() { this.displayComments = !this.displayComments; },
+        modifyRequest() {
+            this.modifyReq = !this.modifyReq;
+        },
+        async deletePost() {
+            const token = (sessionStorage.getItem("token"));
+            const header = { headers: { "Authorization": `Bearer ${token}` } };
+            const paramsId = this.id;
+            await axios.delete("http://localhost:3000/api/posts/" + paramsId, header)
+                .then(res => {
+                    if (res.status == 200) {
+                        this.succesMessage = res.data;
+                        this.alertMsg = "";
+                        this.postExist = false;
+                        this.
+                            setTimeout(this.$parent.getPosts(), 500);
+                    }
+                    else {
+                        this.succesMessage = "";
+                        this.alertMsg = res.error ? (res.error) : (res.data) ? (res.data) : (res);
+                        console.log(res);
+                    }
+                })
+                .catch(() => {
+                    console.log("error");
+                })
+
+        },
+
+        //likes
+        async getLikes() {
+            const token = (sessionStorage.getItem("token"));
+            const header = { headers: { "Authorization": `Bearer ${token}` } };
+            const paramsId = this.id;
+            await axios.get(`http://localhost:3000/api/comment/${paramsId}/likes`, header)
+                .then(res => {
+                    // console.log("==== getLikes " + this.id + "--- response ====");
+                    // console.log(res.data);
+                    this.likesCounter = res.data.length;
+                    //console.log(this.likesCounter);
+                })
+                .catch(() => {
+                    console.log("error");
+                });
+        },
+        async likePost() {
+            const token = (sessionStorage.getItem("token"));
+            const header = { headers: { "Authorization": `Bearer ${token}` } };
+            const paramsId = this.id;
+            const body = {};
+            await axios.post(`http://localhost:3000/api/comment/${paramsId}/likes`, body, header)
+                .then(() => {
+                    this.reactAlertMsg = "";
+                    this.getLikes();
+                })
+                .catch(error => {
+                    if (error.response.data.message) {
+                        this.reactAlertMsg = error.response.data.message;
+                    }
+                    else if (error.response.data) {
+                        this.reactAlertMsg = error.response.data;
+                    }
+                    else {
+                        this.reactAlertMsg = error;
+                    }
+                    //   console.log(error);
+                    console.log("error");
+                })
+
+        },
+
+        //commentaires
+        async getComments() {
+            const token = (sessionStorage.getItem("token"));
+            const header = { headers: { "Authorization": `Bearer ${token}` } };
+            const paramsId = this.id;
+            const userId = sessionStorage.getItem('id');
+            const defaultImgPath = require('../assets/defaulthuman.jpg');
+            await axios.get(`http://localhost:3000/api/comment/${paramsId}`, header)
+                .then(res => {
+                    // console.log("getComments");
+                    // console.log(res.data);
+                    // gestion des images
+                    res.data.forEach(data => {
+                        if (data.user_img == "" || data.user_img == null || data.user_img == undefined) {
+                            data.user_img = defaultImgPath;
+                        }
+                        if (data.comment_author_id == userId) {
+                            this.isCommentAuthor = true;
+                        }
+                    });
+                    // gestion propriété du commentaire
+                    if (res.data.length > 0) {
+                        this.comments = res.data;
+                        // console.log(res.data)
+                    }
+                    else {
+                        this.comments = "";
+                    }
+                })
+                .catch(() => {
+                    console.log("error");
+                });
+
+        },
+        isAuthorLogin(id) {
+            // console.log(id)
+            // console.log(sessionStorage.getItem('id'))
+            if (sessionStorage.getItem('id') == id || sessionStorage.getItem('id') == 1) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        },
+        clickModifyComment(commentId) {
+            // console.log("demande de modif");
+            // console.log('comment id : ' + commentId)
+            // console.log('post id :' + this.id);
+            if (this.commentToModif == commentId) {
+                this.commentToModif = "";
+            }
+            else {
+                this.commentToModif = commentId;
+            }
+        },
+        async submitModifyComment($event, commentId) {
+            $event.preventDefault();
+            console.log(commentId);
+            console.log("post du comment");
+            const modifText = this.$refs.modifiedText[0].value;
+            const token = (sessionStorage.getItem("token"));
+            const header = { headers: { "Authorization": `Bearer ${token}` } };
+            const body = {
+                comment_text: modifText,
+            }
+            await axios.put(`http://localhost:3000/api/comment/${commentId}`, body, header)
+                .then(res => {
+                    console.log(res);
+                    this.clickModifyComment();
+                    this.commentAlertMsg = "";
+                })
+                .catch(error => {
+                    this.commentAlertMsg = error.response.data.code ? (error.response.data.code) : (error.message);
+                })
+        },
+        async deleteComment(id) {
+            console.log("delete");
+            const token = (sessionStorage.getItem("token"));
+            const header = { headers: { "Authorization": `Bearer ${token}` } };
+            axios.delete(`http://localhost:3000/api/comment/${id}`, header)
+                .then(() => {
+                    console.log("ok");
+                    this.getComments();
+                })
+                .catch(() => {
+                    console.log("error");
+                })
+        }
     },
     created() {
 
@@ -368,7 +410,6 @@ export default {
     }
 }
 
-
 .deletePost {
     border: 2px solid red;
     padding: 4px 16px;
@@ -382,7 +423,6 @@ export default {
 }
 
 .modifyPost {
-
     margin: 4px 12px;
     border: 2px solid orange;
     padding: 4px 16px;
@@ -393,12 +433,10 @@ export default {
         background: rgb(238, 210, 157);
         ;
     }
-
 }
 
 .modifyComment--btn {
     border: solid 1px orange;
-
 
     &:hover {
         border: solid 1px orange;
@@ -415,35 +453,41 @@ export default {
     }
 }
 
-
 .modifyComment {
-    width: 76%;
+    width: 81%;
     display: flex;
     align-items: center;
     margin: 2px 0;
 
     & textarea {
-        width: auto;
-        max-width: 76%;
-        min-width: 76%;
+        width: 100%;
         height: 60px;
+        margin-left: 4px;
     }
 
     &--submit {
+        align-self: center;
         cursor: pointer;
         margin: 0 4px;
-        padding: 1px;
+        padding: 4px;
+        border-radius: 4px;
 
         &:hover {
             border-radius: 4px;
-            background: rgb(186, 216, 255);
+            background: rgb(129, 175, 254);
         }
     }
+
+    &--form {
+        display: flex;
+        width: 100%;
+        margin-right: 5%;
+    }
+
 
 }
 
 .singlecomment {
-    height: 70px;
     background: rgb(219, 233, 253);
     margin: 2px auto;
     width: 98%;
@@ -459,12 +503,11 @@ export default {
         display: flex;
         flex-direction: column;
         justify-content: space-around;
-        margin-right: 8px;
+        margin-right: 14px;
+        width: 24px;
 
         span {
             border-radius: 4px;
-            margin: 2px 0;
-            padding: 1px;
             cursor: pointer;
         }
     }
@@ -475,10 +518,12 @@ export default {
         padding-bottom: 4px;
 
         & a {
+            border-right: 1px solid white;
             text-decoration: none;
             color: black;
             display: flex;
             width: 100%;
+            max-width: 196px;
         }
     }
 
@@ -501,19 +546,22 @@ export default {
     }
 
     &--text {
-        padding-left: 4px;
-        width: 100%;
+        width: 80%;
         margin: 4px 0;
+        margin-right: 8px;
         text-align: left;
+        padding-left: 4px;
+        word-wrap: break-word
     }
 
     &--user {
+        background: linear-gradient(to left, rgb(219, 233, 253), white);
         cursor: pointer;
         display: flex;
-        border-radius: 12px;
-        width: 30%;
-        min-width: 150px;
-        max-width: 272px;
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+        min-width: 156px;
+        max-width: 196px;
 
         img {
             overflow: hidden;
@@ -533,9 +581,10 @@ export default {
             text-align: left;
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
-            border-right: 1px solid white;
+            align-self: center;
+
             width: 100%;
+            padding-right: 8px;
 
             &--name {
                 margin: 1px 0;
@@ -569,7 +618,6 @@ export default {
                 background: rgb(129, 175, 254);
             }
         }
-
     }
 }
 </style>

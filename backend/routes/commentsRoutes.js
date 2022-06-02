@@ -18,12 +18,12 @@ router.post("/:postId", auth, multer, commentsController.comment);
 //http://localhost:3000/api/comment/:postid
 
 // //modifier un commentaire
-router.put("/:postId/:id", auth, multer, commentsController.modifyComment);
-//http://localhost:3000/api/comment/:postid/:id/
+router.put("/:id", auth, multer, commentsController.modifyComment);
+//http://localhost:3000/api/comment/:id/
 
 // //supprimer un commentaire
-router.delete("/:postId/:id", auth, multer, commentsController.deleteComment);
-//http://localhost:3000/api/comment/:postid/:id
+router.delete("/:id", auth, multer, commentsController.deleteComment);
+//http://localhost:3000/api/comment/:id
 
 // //ajouter/supprimer un like
 router.post("/:postId/likes", auth, multer, commentsController.addLike);

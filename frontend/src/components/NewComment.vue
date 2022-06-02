@@ -1,12 +1,12 @@
 <template>
-  <form  @submit="submitComment" method="post">
+  <form @submit="submitComment" method="post">
     <div id="newComment">
-    <textarea v-model="comment_text" class="comment--newComment--text" placeholder="Votre commentaire..."></textarea>
-    <button type="submit" class="comment--newComment--btn">➕</button>
+      <textarea v-model="comment_text" class="comment--newComment--text" placeholder="Votre commentaire..."></textarea>
+      <button type="submit" class="comment--newComment--btn">➕</button>
     </div>
-     <div class="comment--container">
-    <span class="alertMessage" v-if="alertMsg">{{ alertMsg }}</span>
-    <span class="succesMessage" v-if="succesMessage">{{ succesMessage }}</span>
+    <div class="comment--container">
+      <span class="alertMessage" v-if="alertMsg">{{ alertMsg }}</span>
+      <span class="succesMessage" v-if="succesMessage">{{ succesMessage }}</span>
     </div>
   </form>
 </template>
@@ -17,9 +17,9 @@ export default {
   data() {
     return {
       comment_text: "",
-      alertMsg:"",
-      succesMessage:"",
-     
+      alertMsg: "",
+      succesMessage: "",
+
     }
   },
   props: ['id'],
@@ -34,26 +34,31 @@ export default {
         comment_text: this.comment_text,
         commented_post_id: postId,
       }
-      console.log(body);
+     // console.log(body);
       await axios.post(`http://localhost:3000/api/comment/${postId}`, body, header)
         .then(res => {
-          this.alertMsg ="";
-          this.succesMessage = res.data;
+          this.alertMsg = "";
+          this.succesMessage = `${res.data} ✔️`;
           console.log(res);
           this.$parent.getComments();
           //ràz du contenue text
-          this.comment_text="";
+          this.comment_text = "";
         })
         .catch(error => {
-          if(error.response){
-          this.alertMsg = error.response.data;
+          if (error.response.data.message) {
+            this.succesMessage = "";
+            this.alertMsg = error.response.data.message;
+          }
+          else if (error.response.data) {
+            this.succesMessage = "";
+            this.alertMsg = error.response.data;
           }
           else {
+            this.succesMessage = "";
             this.alertMsg = error;
           }
-          this.succesMessage = "";
-          console.log(error);
-        });
+          console.log(error)
+        })
     }
   },
 }
@@ -63,11 +68,12 @@ export default {
 .succesMessage {
   margin: 8px auto;
 }
+
 #newComment {
-  display : flex;
+  display: flex;
   justify-content: space-around;
-  width:100%;
-  margin-bottom:-4px;
+  width: 100%;
+  margin-bottom: -4px;
 
 }
 </style>

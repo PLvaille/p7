@@ -56,7 +56,8 @@ app.use((err, req, res, next) => {
         console.log(err);
         return res.status(413).send('Le fichier est trop volumineux !');
     } else {
-        return res.status(500).send('Une erreure est survenue !');
+        //return res.status(500).send('Une erreure est survenue !');
+        return res.status(500).send(err);
     }
 });
 
