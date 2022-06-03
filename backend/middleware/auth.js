@@ -15,7 +15,7 @@ module.exports = (req, res, next) => {
         const token = req.headers.authorization.split(' ')[1];
         //on décode avec la methode verify et la clé secrète initialisée dans les variable d'environnement
         const decodedToken = jwt.verify(token, process.env.TOKEN);
-        //en theorie on a alors l'id de l'user
+        //on a alors l'id de l'user
         const userId = decodedToken.userId;
 
         //si admin
@@ -43,9 +43,14 @@ module.exports = (req, res, next) => {
                 });
             }
         }
-    } catch {
+    } catch (error) {
         //status 401 non autorisé
         //res.status(401).send(`Requête non authentifiée, connectez vous !`);
-        res.status(401).send(error);
+        if (error.name == 'TokenExpiredError') {
+            return res.status(400).json({ message: "Session expirée ! Reconnectez vous." });
+        }
+        else {
+            return res.status(401).send(error.message);
+        }
     }
 };

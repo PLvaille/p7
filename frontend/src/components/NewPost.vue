@@ -16,7 +16,6 @@
                     <button class="btn" type="submit" id="publishBtn">Poster !</button>
                     <p class="alertMessage" v-if="alertMsg">{{ alertMsg }}</p>
                     <p class="succesMessage" v-if="succesMessage">{{ succesMessage }}</p>
-
                 </div>
             </form>
         </form>
@@ -41,7 +40,7 @@ export default {
         uploadFile() {
             this.file = this.$refs.file.files[0];
         },
-        newPost(e) {
+        async newPost(e) {
             e.preventDefault();
             const token = (sessionStorage.getItem('token'));
             const header = {
@@ -65,6 +64,7 @@ export default {
                         this.post_text = "";
                         this.file = "";
                         this.alertMsg = "";
+                        console.log("post créé");
                     }
                     else {
                         this.alertMsg = res;

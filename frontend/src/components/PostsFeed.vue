@@ -45,37 +45,49 @@ export default {
   data: () => {
     return {
       postsData:[],
-      lazy: 0,
+      //lazy: 0,
     }
   },
   methods: {
     //fonction pour recuperer les posts de la db
-    getPosts(lazy) {
+    async getPosts() {
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } };
       const path = 'http://localhost:3000/images/';
-      axios.get(`http://localhost:3000/api/posts/all/` + lazy, header)
+      axios.get(`http://localhost:3000/api/posts/all/`, header)
+      //+this.lazy
         .then(res => {
           // gestion du path des images
           res.data.forEach(data => {
             if (data.post_img) {
               data.post_img = path + data.post_img;
             }
+          //   if(this.postsData.length > 1){
+          //   this.postsData.push(data)
+          // }
             //pour récuperer tous les posts suivants
-            this.postsData.push(data)
+            // console.log("boucle")
+            // console.log(this.postsData);
           });
+         // console.log(this.postsData);
+          // if(this.postsData.length == 0){
+          //   console.log("premiere demande")
+          this.postsData = res.data;
+          console.log(this.postsData);
+         // }
+          //console.log("update");
         })
     },
-    morePosts() {
-      this.lazy++;
-      console.log('click + de post');
-      console.log(this.lazy);
-      this.getPosts(this.lazy);
-    },
+    // morePosts() {
+    //   this.lazy++;
+    //   console.log('click + de post');
+    //   console.log(this.lazy);
+    //   this.getPosts();
+    // },
   },
   //a la creation de la page on lance la fonction tout de suite
   created() {
-    this.getPosts(this.lazy);
+    this.getPosts();
   },
 }
 </script>

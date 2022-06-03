@@ -19,7 +19,7 @@ router.post("/signup", multer, verifPassword, usersController.createNewUser);
 //http://localhost:3000/api/users/signup
 
 //loggin, route POST on passe dans le controller.login
-router.post("/login", usersController.login);
+router.post("/login", multer, usersController.login);
 //http://localhost:3000/api/users/login
 
 //recupérer info d'un utilisateur, GET puis middleware AUTH puis usersController .getUserById

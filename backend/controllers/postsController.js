@@ -5,30 +5,41 @@ const postSchema = require('../models/post');
 //import de filesystem
 const fs = require('fs');
 
+function deleteImg(file) {
+    if (file) {
+        fs.unlinkSync(`images/${file.filename}`)
+    }
+}
 
 //route pour récupérer les (derniers) posts
-// incomplet : prevoir lazy load, LIMIT 10 (ou 9 ??) avec index*n et n=10 (index commence à 0 ?)
+// incomplet : prevoir lazy load, LIMIT 10 avec index*n et n=10 (index commence à 0)
 exports.getAllPosts = async (req, res) => {
-    console.log("param reçu | getAllPosts");
-   // console.log(req)
-   console.log(req.params);
-   var offset = req.params.page;
-   if(offset > 0){
-   offset *= 10;
-   }
-   console.log("offset");
-   console.log(offset);
-    
+    // console.log("param reçu | getAllPosts");
+    // console.log(req)
+    //    console.log(req.params);
+    //    var offset = req.params.page;
+    //    if(offset > 0){
+    //    offset *= 10;
+    //    }
+    //    console.log("offset");
+    //    console.log(offset);
+
     // faire en 1 seule requete posts + commentaires + likes ?
-    db.query('SELECT * FROM posts ORDER BY post_date DESC LIMIT 10 OFFSET ?;', parseInt(offset), (err, resultat) => {
+    //LIMIT 10 OFFSET ? , parseInt(offset)
+    db.query(`SELECT * FROM posts 
+    LEFT JOIN comments ON (posts.post_id = comments.commented_post_id) 
+    LEFT JOIN likes ON (like_post_id = posts.post_id)
+    ORDER BY post_date DESC ;`, (err, resultat) => {
         if (err) {
             return res.status(400).send({ err });
         }
         else {
             //edition de la date
             resultat.forEach(e => {
-                const dateEdit = JSON.stringify(e.post_date).slice(0, 21).replace('T', ' à ').replace('"', 'le '); 
-                e.post_date = dateEdit;
+                const postDateEdit = JSON.stringify(e.post_date).slice(0, 21).replace('T', ' à ').replace('"', 'le ');
+                const commentDateEdit = JSON.stringify(e.comment_date).slice(0, 21).replace('T', ' à ').replace('"', 'le ');
+                e.post_date = postDateEdit;
+                e.comment_date = commentDateEdit;
             });
             return res.status(200).json(resultat);
             //tableau d'objets
@@ -39,18 +50,22 @@ exports.getAllPosts = async (req, res) => {
 //route pour récupérer un post ses commentaires et likes avec son id
 exports.getPostById = async (req, res) => {
     let id = req.params.id;
-    //'SELECT * FROM posts LEFT JOIN comments ON (posts.post_id = comments.commented_post_id) WHERE post_id = ? ORDER BY comment_date ASC;'
-    db.query('SELECT * FROM posts WHERE post_id = ? ORDER BY post_date ASC;', id, (err, resultat) => {
-        if (err) {
-            return res.status(400).send({ err });
-        }
-        else if (!resultat[0]) {
-            return res.status(404).send("Post inexistant")
-        }
-        else {
-            return res.status(200).json(resultat);
-        }
-    });
+    db.query(`SELECT * FROM posts
+    LEFT JOIN comments ON (posts.post_id = comments.commented_post_id)
+    LEFT JOIN likes ON (like_post_id = posts.post_id)
+    WHERE post_id = ?
+    ORDER BY post_date ASC;`,
+        id, (err, resultat) => {
+            if (err) {
+                return res.status(400).send({ err });
+            }
+            else if (!resultat[0]) {
+                return res.status(404).send("Post inexistant")
+            }
+            else {
+                return res.status(200).json(resultat);
+            }
+        });
 };
 
 // route pour créer un post
@@ -71,10 +86,7 @@ exports.createPost = async (req, res) => {
     const validPost = postSchema.validate(post);
     //if post not ok
     if (validPost.error) {
-        if (req.file) {
-            //suppression de l'image si erreur dans le form
-            fs.unlinkSync(`images/${req.file.filename}`);
-        }
+        deleteImg(req.file);
         return res.status(400).send(validPost.error.message);
     }
     //if post ok
@@ -90,9 +102,7 @@ exports.createPost = async (req, res) => {
         //sauvegarde de l'objet en db
         db.query('INSERT INTO posts SET ?;', post, (err) => {
             if (err) {
-                if (req.file) {
-                    fs.unlinkSync(`images/${req.file.filename}`);
-                }
+                deleteImg(req.file);
                 return res.status(400).send({ err });
             } else {
                 return res.status(201).send("Post créé dans la db");
@@ -105,26 +115,19 @@ exports.createPost = async (req, res) => {
 exports.modifyPost = async (req, res, err) => {
     const authId = req.auth;
     const postId = req.params.id;
-    let image = "";
-
     db.query(`SELECT post_author_id FROM posts WHERE post_id = ${postId};`, (err, resultat) => {
         if (err) {
             res.status(400).send(err);
         }
         else if (!resultat[0]) {
-            if (req.file) {
-                fs.unlinkSync(`images/${req.file.filename}`);
-            }
+            deleteImg(req.file);
             return res.status(404).send("Poste introuvable");
-
         }
         else {
             //on verifie que l'id de l'auteur est bien le meme que dans la db
             const postAuthor = resultat[0].post_author_id;
             if (postAuthor != authId && authId != 1) {
-                if (req.file) {
-                    fs.unlinkSync(`images/${req.file.filename}`);
-                }
+                deleteImg(req.file);
                 return res.status(403).send("Vous ne pouvez pas modifier un post qui ne vous appartient pas !");
 
                 //si postid = postauthor
@@ -134,48 +137,36 @@ exports.modifyPost = async (req, res, err) => {
                     if (err) {
                         return res.status(400).send(err);
                     } else {
-                        //si pas de nouveau fichier
-                        if (!req.file) {
-                            image = resultat[0].post_img;
-                            // console.log("nom de l'image d'origine");
-                            // console.log(image);
-                        }
-                        else {
-
-                            const oldImage = resultat[0].post_img.slice(34);
-                            // console.log(oldImage);
-                            //si le path dans la db était pas NULL                        
-                            if (oldImage.length > 4) {
-                                fs.unlinkSync(`images/${oldImage}`);
-                            }
-                            //on enregistre le nouveau chemin dans l'objet post
-                            image = req.file.filename;
-                        }
                         //création de l'objet post pour la requete préparé
                         const post = {
                             post_author_id: postAuthor,
                             post_title: req.body.post_title,
                             post_text: req.body.post_text,
-                            post_img: image
                         };
+                        //gestion image
+                        req.file ? (post.post_img = req.file.filename) : (post.post_img = resultat[0].post_img);
                         const validPost = postSchema.validate(post);
-                        //si l'objet post valid le model post
+                        //si l'objet post valide le model post
                         if (validPost.error) {
+                            deleteImg(req.file);
                             return res.status(400).send(validPost.error.message);
                         }
                         //si tout es ok
                         else {
-                            const postToUpdate = {
-                                post_title: req.body.post_title,
-                                post_text: req.body.post_text,
-                                post_img: image
-                            }
-                            db.query(`UPDATE posts SET ? WHERE post_id = '${postId}';`, postToUpdate, (err) => {
+                            console.log(post);
+                            db.query(`UPDATE posts SET ? WHERE post_id = '${postId}';`, post, (err) => {
                                 if (err) {
+                                    deleteImg(req.file);
                                     // 403 ?
                                     return res.status(400).send(err);
                                 }
                                 else {
+                                    //on recupere l'ancienne img
+                                    const oldImage = resultat[0].post_img;
+                                    //si son nom dans la db était pas NULL on la supprime
+                                    if (oldImage.length > 1) {
+                                        fs.unlinkSync(`images/${oldImage}`);
+                                    }
                                     return res.status(200).send("Post modifié !");
                                 }
                             });
@@ -213,6 +204,7 @@ exports.deletePost = async (req, res) => {
                         const postAuthor = result[0].post_author_id;
                         // console.log("postAuthor : " + postAuthor);          
                         if (postAuthor != userTryingToDeleteId && userTryingToDeleteId != 1) {
+
                             return res.status(403).send(" Vous ne pouvez pas supprimer ce post !");
                         }
                         else {
@@ -223,14 +215,17 @@ exports.deletePost = async (req, res) => {
                                 }
                                 else {
                                     //si il y a une image (not NULL) on la supprime 
-                                    if (resu[0].post_img.length > 34) {
-                                        fs.unlinkSync(`images/${resu[0].post_img.slice(34)}`);
+                                    if (resu[0].post_img.length > 1) {
+                                        fs.unlinkSync(`images/${resu[0].post_img}`);
                                     }
                                 }
                             });
-
+// REVOIR ICI
                             //suppression des données
-                            db.query(`DELETE posts, comments, likes FROM posts LEFT JOIN comments ON (comments.commented_post_id = posts.post_id) LEFT JOIN likes ON (likes.like_post_id = posts.post_id) WHERE post_id = ?;`, postId, (err) => {
+                            db.query(`DELETE posts, comments, likes FROM posts 
+                            LEFT JOIN comments ON (comments.commented_post_id = posts.post_id)
+                            LEFT JOIN likes ON (likes.like_post_id = posts.post_id) 
+                            WHERE post_id = ?;`, postId, (err) => {
                                 if (err) {
                                     return res.status(400).send(err);
                                 }
@@ -238,7 +233,6 @@ exports.deletePost = async (req, res) => {
                                     res.status(200).send("Post supprimé !");
                                 }
                             });
-
                         }
                     }
                 })

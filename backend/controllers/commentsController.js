@@ -4,7 +4,6 @@ const db = require('../database_connect');
 const commentSchema = require('../models/comment');
 
 exports.comment = async (req, res) => {
-  //  console.log(req);
     const validPost = commentSchema.validate({ comment: req.body.comment_text });
     if (validPost.error) {
         return res.status(400).send(validPost.error.message);
@@ -13,7 +12,6 @@ exports.comment = async (req, res) => {
         const commented_post_id = parseInt(req.params.postId);
         const comment_author_id = req.auth;
         const comment_text = req.body.comment_text;
-       // console.log(commented_post_id);
         db.query(`INSERT INTO comments (commented_post_id, comment_author_id, comment_text) VALUES (?,?,?);`, [commented_post_id, comment_author_id, comment_text], (err) => {
             if (err) {
                 return res.status(400).send(err);
@@ -86,8 +84,6 @@ exports.deleteComment = async (req, res) => {
     const userId = req.auth;
     const commentId = req.params.id;
     db.query(`SELECT * FROM comments WHERE comment_id = ?;`, commentId, (err, resultat) => {
-        // console.log(resultat[0].comment_author_id);
-        // console.log(userId);
         if (err) {
             return res.status(400).send(err);
         }
@@ -111,14 +107,8 @@ exports.deleteComment = async (req, res) => {
 };
 
 exports.addLike = async (req, res) => {
-   
     const userId = req.auth;
     const postId = req.params.postId;
-    //console.log("---- ADDLIKE ----");
-    // console.log(userId);
-    // console.log(postId);
-
-    //verif que post exist
     db.query('SELECT post_id FROM posts WHERE post_id = ?;', postId, (err, resu) => {
         if (err) {
             return res.status(400).send(err);
@@ -129,16 +119,14 @@ exports.addLike = async (req, res) => {
         else {
             db.query('SELECT * FROM likes WHERE like_post_id = ? AND like_user_id = ?;', [postId, userId], (err, resultat) => {
                 if (err) {
-                   // console.log("L 132")
                     console.log(err)
                     return res.status(400).send(err);
                 }
                 else {
+                    //si like_user_id pas trouvé on l'ajoute
                     if (resultat[0] == undefined) {
                         db.query('INSERT INTO likes (like_user_id, like_post_id) VALUES (?,?);', [userId, postId], (err) => {
                             if (err) {
-                               // console.log("L 140")
-                                console.log(err)
                                 return res.status(400).send(err);
                             }
                             else {
@@ -146,11 +134,10 @@ exports.addLike = async (req, res) => {
                             }
                         })
                     }
+                    //si like_user_id trouvé on le supprime
                     else if (resultat[0]) {
                         db.query('DELETE FROM likes WHERE like_id = ?', resultat[0].like_id, (err) => {
                             if (err) {
-                               // console.log("L 152")
-                                console.log(err)
                                 return res.status(400).send(err);
                             }
                             else {
@@ -161,9 +148,6 @@ exports.addLike = async (req, res) => {
                 }
             });
         }
-
-
-
     })
 };
 
@@ -182,18 +166,14 @@ exports.getLikes = async (req, res) => {
                 if (err) {
                     return res.status(400).send(err);
                 }
-
                 else {
                     if (!resul || resul[0] == undefined || resul == []) {
                         return res.status(200).send([]);
                     }
                     else {
-                        // console.log(resul);
-                        //console.log(likes[0].length);
                         return res.status(200).send(resul);
                     }
                 }
-
             })
         }
     })

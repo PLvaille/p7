@@ -14,7 +14,7 @@ router.post("/", auth, multer, postsController.createPost);
 //http://localhost:3000/api/posts/
 
 //récuprer les (derniers) posts
-router.get("/all/:page", auth, multer, postsController.getAllPosts);
+router.get("/all", auth, multer, postsController.getAllPosts);
 //http://localhost:3000/api/posts/
 
 //récuprérer un post par son id

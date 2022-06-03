@@ -9,94 +9,98 @@ const emailValidation = require('../models/user_mail');
 const userValidation = require('../models/user_model');
 //import de fs pour gerer les fichiers
 const fs = require('fs');
-//import des variable d'environnement
-const path = require('path');
 
-require('dotenv').config({
-    path: path.resolve(__dirname, './.env')
-});
+function deleteImg(file){
+    if (file) {
+        fs.unlinkSync(`images/${file.filename}`)
+    }
+}
 
 // création d'un utlisateur, email doit être valide (et unique mais c'est géré côté db)
 exports.createNewUser = async (req, res) => {
-    //image par défaut si pas de req.file  
-    if (!req.file) {
-        var image = "";
-    }
-    //tester null 
-    if (!req.body.user_email || !req.body.user_password) {
-        if (req.file) {
-            fs.unlinkSync(`images/${req.file.filename}`)
+    try {
+        //image par défaut si pas de req.file  
+        if (!req.file) {
+            var image = "";
         }
-        return res.status(400).json({ message: "Veuillez indiquer un e-mail et un mot de passe." })
-    }
-    //on test si l'email est au bon format
-    const emailToTest = { email: req.body.user_email };
-    const validEmail = emailValidation.validate(emailToTest);
-    //si format invalide
-    if (validEmail.error || emailToTest.email == undefined) {
-        if (req.file) {
-            fs.unlinkSync(`images/${req.file.filename}`)
+        //tester null 
+        if (!req.body.user_email || !req.body.user_password) {
+            deleteImg(req.file)
+            throw "Veuillez indiquer un e-mail et un mot de passe.";
         }
-        return res.status(400).json({ message: "Adresse e-mail incorrecte" });
-        //si format valide
-    } else {
-        //hash du mot de passe
-        bcrypt.hash(req.body.user_password, 10)
-            .then((hash) => {
-                //objet à envoyer dans la requete mysql
-                const userToValidate = {
-                    user_nom: req.body.user_nom,
-                    user_prenom: req.body.user_prenom,
-                    user_img: image,
-                    user_age: req.body.user_age,
-                    user_service: req.body.user_service
-                }
-                //on verifie les champs avec Joi
-                const validUser = userValidation.validate(userToValidate);
-                if (validUser.error) {
-                    if (req.file) {
-                        fs.unlinkSync(`images/${req.file.filename}`)
-                    }
-                    return res.status(400).json({ message: "Erreur de formulaire " + validUser.error });
-                }
-                else {
-                    if (req.file) {
-                        image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-                    }
-                    // objet user complet à envoyer en bdd
-                    const user = {
-                        user_password: hash,
+        //on test si l'email est au bon format
+        const emailToTest = { email: req.body.user_email };
+        const validEmail = emailValidation.validate(emailToTest);
+        //si format invalide
+        if (validEmail.error || emailToTest.email == undefined) {
+            deleteImg(req.file)
+            throw "Adresse e-mail incorrecte.";
+            //si format valide
+        } else {
+            //hash du mot de passe
+            bcrypt.hash(req.body.user_password, 10)
+                .then((hash) => {
+                    //objet à envoyer dans la requete mysql
+                    const userToValidate = {
                         user_nom: req.body.user_nom,
                         user_prenom: req.body.user_prenom,
                         user_img: image,
-                        user_email: req.body.user_email,
                         user_age: req.body.user_age,
                         user_service: req.body.user_service
-                    };
-                    //requete msql préparée pour inserer l'user dans la table users
-                    db.query('INSERT INTO users SET ?', user, (error, results) => {
-                        //si on ne peut pas insérer dans la db c'est que l'email existe deja
-                        if (error) {
-                            if (req.file) {
-                                fs.unlinkSync(`images/${req.file.filename}`);
-                            }
-                            res.status(400).json({ message: "Cette adresse email est déjà utilisé " });
-                            // si aucun probleme on créer la row dans la db
-                        } else {
-                            res.status(201).json({ message: "Utilisateur créé !" });
+                    }
+                    //on verifie les champs avec Joi
+                    const validUser = userValidation.validate(userToValidate);
+                    if (validUser.error) {
+                        // return res.status(400).json({ message: "Erreur de formulaire " + validUser.error });
+                        deleteImg(req.file)
+                        throw "Erreur de formulaire" + validUser.error;
+
+                    }
+                    //si tout est bon
+                    else {
+                        if (req.file) {
+                           // image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+                           image = `${req.file.filename}`;
                         }
-                    });
-                }
-            })
-            .catch(err => {
-                res.status(400).json(err);
-            });
+                        // objet user complet à envoyer en bdd
+                        const user = {
+                            user_password: hash,
+                            user_nom: req.body.user_nom,
+                            user_prenom: req.body.user_prenom,
+                            user_img: image,
+                            user_email: req.body.user_email,
+                            user_age: req.body.user_age,
+                            user_service: req.body.user_service
+                        };
+                        //requete msql préparée pour inserer l'user dans la table users
+                        db.query('INSERT INTO users SET ?', user, (error, results) => {
+                            //si on ne peut pas insérer dans la db c'est que l'email existe deja
+                            if (error) {
+                                deleteImg(req.file)
+                                //409 = conflict
+                                return res.status(409).json({ message: "Cette adresse email est déjà utilisé" });
+
+                                // si aucun probleme on créer la row dans la db
+                            } else {
+                                return res.status(201).json({ message: "Utilisateur créé !" });
+                            }
+                        });
+                    }
+                })
+                .catch(err => {
+                    res.status(500).json(err);
+                });
+        }
+    }
+    catch (err) {
+       res.status(400).send(err);
     }
 };
 
 // si login ok => renvoie un objet avec id et token
 exports.login = async (req, res) => {
-    if (!req.body.user_email) {
+    console.log(req.body);
+    if (!req.body.user_email || !req.body.user_password) {
         return res.status(400).json({ message: "Veuillez saisir votre adresse mail et votre mot de passe." });
     }
     else {
@@ -143,9 +147,9 @@ exports.login = async (req, res) => {
 exports.getUserById = async (req, res) => {
     const requestedid = req.params.id;
     const userId = req.auth;
-    //si requete sur l'admin que le nom prenom
+    //si requete sur l'admin que le nom prenom date
     if (requestedid == 1) {
-        db.query('SELECT user_nom, user_prenom, user_age, user_date FROM users WHERE user_id = 1', (error, result) => {
+        db.query('SELECT user_prenom, user_nom, user_date FROM users WHERE user_id = 1', (error, result) => {
             if (error) {
                 res.status(400).json({ error });
             }
@@ -164,7 +168,7 @@ exports.getUserById = async (req, res) => {
             }
             else {
                 if (userId == requestedid || userId == 1) {
-                    //si l'utilisateur consulte son propre profile
+                    //si l'utilisateur consulte son propre profile ou admin
                     delete resultat[0].user_password;
                     return res.status(200).json(resultat);
                 }
@@ -194,16 +198,12 @@ exports.modifyUser = async (req, res) => {
         }
         //cas ou aucun utilisateur ne correspond à l'id du param
         else if (!resultat[0]) {
-            if (req.file) {
-                fs.unlinkSync(`images/${req.file.filename}`)
-            }
+            deleteImg(req.file);
             return res.status(404).json({ message: "Utilisateur inexistant" });
         }
         //cas ou l'id demandé n'est pas celui de l'user auth
         else if (resultat[0].user_id != userId && userId != 1) {
-            if (req.file) {
-                fs.unlinkSync(`images/${req.file.filename}`)
-            }
+            deleteImg(req.file)
             return res.status(403).json({ message: "Vous ne pouvez pas modifier un autre utilisateur" });
         }
         //si tout est bon 
@@ -214,12 +214,6 @@ exports.modifyUser = async (req, res) => {
             var prenom = req.body.user_prenom ? (req.body.user_prenom) : (resultat[0].user_prenom);
             var age = req.body.user_age ? (req.body.user_age) : (resultat[0].user_age);
             var image = req.file ? (req.file.filename) : (resultat[0].user_img);
-            // console.log("-------req.file.filename-----")
-            // console.log(req.file.filename);
-            // console.log("------- ancienne image : resultat[0].user_img  --------");
-            // console.log(resultat[0].user_img);
-            // console.log("------image sauvé------");
-            // console.log(image);
             var service = req.body.user_service ? (req.body.user_service) : (resultat[0].user_service) ? (resultat[0].user_service) : ("");
 
             if (req.body.user_email) {
@@ -253,9 +247,7 @@ exports.modifyUser = async (req, res) => {
                 const validEmail = emailValidation.validate(tryemail);
                 // cas ou le mail n'est pas valide
                 if (validEmail.error) {
-                    if (req.file) {
-                        fs.unlinkSync(`images/${req.file.filename}`);
-                    }
+                    deleteImg(req.file)
                     return res.status(400).json({ message: "Nouvel e-mail invalide ! " + validEmail.error.message });
                 }
                 else {
@@ -265,9 +257,7 @@ exports.modifyUser = async (req, res) => {
             }
             // cas ou le reste du formulaire est invalide
             if (validUser.error) {
-                if (req.file) {
-                    fs.unlinkSync(`images/${req.file.filename}`)
-                }
+                deleteImg(req.file)
                 return res.status(400).json({ message: validUser.error.message });
                 //si tout est valide 
             } else {
@@ -281,9 +271,7 @@ exports.modifyUser = async (req, res) => {
                     const passwordSchema = require('../models/password');
 
                     if (!passwordSchema.validate(password)) {
-                        if (req.file) {
-                            fs.unlinkSync(`images/${req.file.filename}`)
-                        }
+                        deleteImg(req.file)
                         return res.status(400).send("Le mot de passe doit contenir 8 caractères minimun, au moins 1 majuscule, 1 minuscule et sans espaces, et ne doit pas être trop simple");
                     }
                     //si le password indiqué est valide on le hash
@@ -299,16 +287,12 @@ exports.modifyUser = async (req, res) => {
                 //maintenant qu'on a le mot de passe on passe à la requete UPDATE, notre seule erreur peut être un doublon d'email
                 db.query(`UPDATE users SET ? WHERE user_id = ${req.params.id};`, modifyRequest, (err, response) => {
                     if (err) {
-                        if (req.file) {
-                            fs.unlinkSync(`images/${req.file.filename}`);
-                        }
-                        return res.status(400).json({ message: "Adresse email déjà utilisé : " + err.message });
+                        deleteImg(req.file)
+                        return res.status(400).json({ message: "Cette adresse email est déjà utilisée."});
                     }
                     else {
                         //on supprime l'ancienne image et mise à jour de la db
-                        if (req.file) {
-                            fs.unlinkSync(`images/${resultat[0].user_img}`);
-                        }
+                        deleteImg(req.file)
                         return res.status(201).json({ message: "Compte modifié !" });
                     }
                 });
@@ -321,7 +305,7 @@ exports.deleteUser = async (req, res) => {
     // il faudra prévoir une table de sauvegarde dans le milieu pro
     // => pas de cascade j'ai pas mis en place la logique de FK cascades
 
-    // supprimer les posts tous les comms & likes des dits posts et les fichiers
+    // supprimer les posts tous les comms & likes des dits posts et leurs fichiers
     const userToDelete = req.params.id;
     //on sécurise l'admin
     if (userToDelete == 1) {
@@ -354,6 +338,8 @@ exports.deleteUser = async (req, res) => {
                 if (resultat[0].user_img.length > 4) {
                     fs.unlinkSync(`images/${resultat[0].user_img}`);
                 }
+
+    //revoir ici
                 //suppression des entrées de la db
                 //SET SQL_SAFE_UPDATES = 0; ????
                 db.query(`DELETE users, posts, comments, likes 

@@ -218,7 +218,6 @@ export default {
                         this.succesMessage = res.data;
                         this.alertMsg = "";
                         this.postExist = false;
-                        this.
                             setTimeout(this.$parent.getPosts(), 500);
                     }
                     else {
@@ -227,8 +226,8 @@ export default {
                         console.log(res);
                     }
                 })
-                .catch(() => {
-                    console.log("error");
+                .catch((error) => {
+                    console.log(error);
                 })
 
         },
