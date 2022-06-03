@@ -10,7 +10,7 @@ const userValidation = require('../models/user_model');
 //import de fs pour gerer les fichiers
 const fs = require('fs');
 
-function deleteImg(file){
+function deleteImg(file) {
     if (file) {
         fs.unlinkSync(`images/${file.filename}`)
     }
@@ -59,8 +59,8 @@ exports.createNewUser = async (req, res) => {
                     //si tout est bon
                     else {
                         if (req.file) {
-                           // image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-                           image = `${req.file.filename}`;
+                            // image = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+                            image = `${req.file.filename}`;
                         }
                         // objet user complet à envoyer en bdd
                         const user = {
@@ -88,12 +88,12 @@ exports.createNewUser = async (req, res) => {
                     }
                 })
                 .catch(err => {
-                    res.status(500).json(err);
+                    res.status(500).json({message : err});
                 });
         }
     }
     catch (err) {
-       res.status(400).send(err);
+        res.status(400).send(err);
     }
 };
 
@@ -107,7 +107,7 @@ exports.login = async (req, res) => {
         db.query('SELECT * FROM users WHERE user_email = ?', req.body.user_email, (err, resultat) => {
             if (err) {
                 // si username était unique on pourrait mettre une query user name ici pour se loger soit avec le mail soit avec username
-                return res.status(400).json({ err })
+                return res.status(400).send(err)
             }
             else if (!resultat[0]) {
                 return res.status(404).json({ message: "Utilisateur non trouvé, vérifiez votre adresse mail ou créez un compte !" });
@@ -137,7 +137,7 @@ exports.login = async (req, res) => {
                             });
                         }
                     })
-                    .catch(error => res.status(500).json('auth err : ' + error));
+                    .catch(error => res.status(500).json({ message: error }));
             }
         });
     }
@@ -151,7 +151,7 @@ exports.getUserById = async (req, res) => {
     if (requestedid == 1) {
         db.query('SELECT user_prenom, user_nom, user_date FROM users WHERE user_id = 1', (error, result) => {
             if (error) {
-                res.status(400).json({ error });
+                res.status(400).json({ message: error });
             }
             else {
                 res.status(200).json(result);
@@ -161,7 +161,7 @@ exports.getUserById = async (req, res) => {
     else {
         db.query('SELECT * FROM users WHERE user_id = ?', requestedid, (err, resultat) => {
             if (err) {
-                return res.status(400).json({ err });
+                return res.status(400).json({ mesage: err });
             }
             else if (!resultat[0]) {
                 return res.status(404).json({ message: "Utilisateur introuvable" });
@@ -194,7 +194,7 @@ exports.modifyUser = async (req, res) => {
     //on récupere les infos de l'utilisateur à l'id demandé
     db.query(`SELECT * FROM users WHERE user_id = ?;`, requestedId, (error, resultat) => {
         if (error) {
-            return res.status(400).json(error);
+            return res.status(400).json({ message: error });
         }
         //cas ou aucun utilisateur ne correspond à l'id du param
         else if (!resultat[0]) {
@@ -272,7 +272,7 @@ exports.modifyUser = async (req, res) => {
 
                     if (!passwordSchema.validate(password)) {
                         deleteImg(req.file)
-                        return res.status(400).send("Le mot de passe doit contenir 8 caractères minimun, au moins 1 majuscule, 1 minuscule et sans espaces, et ne doit pas être trop simple");
+                        return res.status(400).json({ message: "Le mot de passe doit contenir 8 caractères minimun, au moins 1 majuscule, 1 minuscule et sans espaces, et ne doit pas être trop simple" });
                     }
                     //si le password indiqué est valide on le hash
                     else if (passwordSchema.validate(password)) {
@@ -281,14 +281,14 @@ exports.modifyUser = async (req, res) => {
                                 //on sauvegarde egalement le nouveau path de la nouvelle image s'il y en a une
                                 modifyRequest.user_password = hash;
                             })
-                            .catch(error => res.status(500).json({ error }));
+                            .catch(error => res.status(500).json({ message: error }));
                     }
                 }
                 //maintenant qu'on a le mot de passe on passe à la requete UPDATE, notre seule erreur peut être un doublon d'email
                 db.query(`UPDATE users SET ? WHERE user_id = ${req.params.id};`, modifyRequest, (err, response) => {
                     if (err) {
                         deleteImg(req.file)
-                        return res.status(400).json({ message: "Cette adresse email est déjà utilisée."});
+                        return res.status(400).json({ message: "Cette adresse email est déjà utilisée." });
                     }
                     else {
                         //on supprime l'ancienne image et mise à jour de la db
@@ -309,14 +309,14 @@ exports.deleteUser = async (req, res) => {
     const userToDelete = req.params.id;
     //on sécurise l'admin
     if (userToDelete == 1) {
-        return res.status(403).json("Impossible de supprimer l'admin !")
+        return res.status(403).json({ message : "Impossible de supprimer l'admin !"})
     }
     const userId = req.auth;
     if (userToDelete == userId || userId == 1) {
         //on supprimera le profil de l'utilisateur, ses posts et tous les commentaires liés à ses posts et ses commentaires
         db.query(`SELECT * FROM users LEFT JOIN posts ON (user_id = post_author_id) WHERE user_id = ?;`, userToDelete, (err, resultat) => {
             if (err) {
-                return res.status(400).json(err);
+                return res.status(400).json({message : err});
             }
             else {
                 let images = [];
@@ -339,7 +339,7 @@ exports.deleteUser = async (req, res) => {
                     fs.unlinkSync(`images/${resultat[0].user_img}`);
                 }
 
-    //revoir ici
+                //revoir ici
                 //suppression des entrées de la db
                 //SET SQL_SAFE_UPDATES = 0; ????
                 db.query(`DELETE users, posts, comments, likes 

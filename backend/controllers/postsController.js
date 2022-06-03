@@ -31,7 +31,7 @@ exports.getAllPosts = async (req, res) => {
     LEFT JOIN likes ON (like_post_id = posts.post_id)
     ORDER BY post_date DESC ;`, (err, resultat) => {
         if (err) {
-            return res.status(400).send({ err });
+            return res.status(400).json({ message: err });
         }
         else {
             //edition de la date
@@ -57,10 +57,10 @@ exports.getPostById = async (req, res) => {
     ORDER BY post_date ASC;`,
         id, (err, resultat) => {
             if (err) {
-                return res.status(400).send({ err });
+                return res.status(400).json({ message: err });
             }
             else if (!resultat[0]) {
-                return res.status(404).send("Post inexistant")
+                return res.status(404).json({ message: "Post inexistant" })
             }
             else {
                 return res.status(200).json(resultat);
@@ -87,7 +87,7 @@ exports.createPost = async (req, res) => {
     //if post not ok
     if (validPost.error) {
         deleteImg(req.file);
-        return res.status(400).send(validPost.error.message);
+        return res.status(400).json({ message: validPost.error.message });
     }
     //if post ok
     else {
@@ -103,9 +103,9 @@ exports.createPost = async (req, res) => {
         db.query('INSERT INTO posts SET ?;', post, (err) => {
             if (err) {
                 deleteImg(req.file);
-                return res.status(400).send({ err });
+                return res.status(400).json({ message: err });
             } else {
-                return res.status(201).send("Post créé dans la db");
+                return res.status(201).json({ message: "Post créé dans la db" });
             }
         });
     }
@@ -117,25 +117,25 @@ exports.modifyPost = async (req, res, err) => {
     const postId = req.params.id;
     db.query(`SELECT post_author_id FROM posts WHERE post_id = ${postId};`, (err, resultat) => {
         if (err) {
-            res.status(400).send(err);
+            res.status(400).json({ message: err });
         }
         else if (!resultat[0]) {
             deleteImg(req.file);
-            return res.status(404).send("Poste introuvable");
+            return res.status(404).json({ message: "Poste introuvable" });
         }
         else {
             //on verifie que l'id de l'auteur est bien le meme que dans la db
             const postAuthor = resultat[0].post_author_id;
             if (postAuthor != authId && authId != 1) {
                 deleteImg(req.file);
-                return res.status(403).send("Vous ne pouvez pas modifier un post qui ne vous appartient pas !");
+                return res.status(403).json({ message: "Vous ne pouvez pas modifier un post qui ne vous appartient pas !" });
 
                 //si postid = postauthor
             } else {
                 //on récupere tous les champs de la db
                 db.query(`SELECT * FROM posts WHERE post_id = ${postId};`, (err, resultat) => {
                     if (err) {
-                        return res.status(400).send(err);
+                        return res.status(400).json({ message: err });
                     } else {
                         //création de l'objet post pour la requete préparé
                         const post = {
@@ -149,7 +149,7 @@ exports.modifyPost = async (req, res, err) => {
                         //si l'objet post valide le model post
                         if (validPost.error) {
                             deleteImg(req.file);
-                            return res.status(400).send(validPost.error.message);
+                            return res.status(400).json({ message: validPost.error.message });
                         }
                         //si tout es ok
                         else {
@@ -158,7 +158,7 @@ exports.modifyPost = async (req, res, err) => {
                                 if (err) {
                                     deleteImg(req.file);
                                     // 403 ?
-                                    return res.status(400).send(err);
+                                    return res.status(400).json({ message: err });
                                 }
                                 else {
                                     //on recupere l'ancienne img
@@ -167,7 +167,7 @@ exports.modifyPost = async (req, res, err) => {
                                     if (oldImage.length > 1) {
                                         fs.unlinkSync(`images/${oldImage}`);
                                     }
-                                    return res.status(200).send("Post modifié !");
+                                    return res.status(200).json({ message: "Post modifié." });
                                 }
                             });
                         }
@@ -183,35 +183,35 @@ exports.deletePost = async (req, res) => {
     const userTryingToDeleteId = req.auth;
     const postId = req.params.id;
     if (!userTryingToDeleteId) {
-        res.status(403).send("Connectez vous pour acceder à ce contenu.");
+        res.status(403).json({ message: "Connectez vous pour acceder à ce contenu." });
     }
     else {
         /// verif que postId exist
         db.query(`SELECT post_id FROM posts WHERE post_id = ${postId};`, (err, resultat) => {
             if (err) {
-                return res.status(400).send(err);
+                return res.status(400).json({ message: err });
             }
             else if (resultat[0] == undefined) {
-                return res.status(404).send("Post inexistant : " + err);
+                return res.status(404).json({ message: "Post inexistant." });
             }
             else {
                 //verif que post_author_id = usertryingtoDelete
                 db.query(`SELECT post_author_id FROM posts WHERE post_id = ${postId};`, (err, result) => {
                     if (err) {
-                        return res.status(400).send(err);
+                        return res.status(400).json({ message: err });
                     }
                     else {
                         const postAuthor = result[0].post_author_id;
                         // console.log("postAuthor : " + postAuthor);          
                         if (postAuthor != userTryingToDeleteId && userTryingToDeleteId != 1) {
 
-                            return res.status(403).send(" Vous ne pouvez pas supprimer ce post !");
+                            return res.status(403).json({ message: "Vous ne pouvez pas supprimer ce post." });
                         }
                         else {
                             //suppression de l'image
                             db.query(`SELECT * FROM posts WHERE post_id = ${postId};`, (err, resu) => {
                                 if (err) {
-                                    return res.status(400).send(err);
+                                    return res.status(400).json({ message: err });
                                 }
                                 else {
                                     //si il y a une image (not NULL) on la supprime 
@@ -220,17 +220,17 @@ exports.deletePost = async (req, res) => {
                                     }
                                 }
                             });
-// REVOIR ICI
+                            // REVOIR ICI
                             //suppression des données
                             db.query(`DELETE posts, comments, likes FROM posts 
                             LEFT JOIN comments ON (comments.commented_post_id = posts.post_id)
                             LEFT JOIN likes ON (likes.like_post_id = posts.post_id) 
                             WHERE post_id = ?;`, postId, (err) => {
                                 if (err) {
-                                    return res.status(400).send(err);
+                                    return res.status(400).json({ message: err });
                                 }
                                 else {
-                                    res.status(200).send("Post supprimé !");
+                                    res.status(200).json({ message: "Post supprimé." });
                                 }
                             });
                         }
