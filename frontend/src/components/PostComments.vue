@@ -2,9 +2,7 @@
     <!-- INFOS MSG -->
     <div>
         <p class="alertMessage" v-if="alertMsg">{{ alertMsg }}</p>
-        <p v-if="!postExist" class="succesMessage">{{ succesMessage }}</p>
     </div>
-
     <!-- BLOCK REACTIONS / MODIF / DELETE POST -->
     <div>
         <span class="alertMessage" v-if="reactAlertMsg">{{ reactAlertMsg }}</span>
@@ -51,6 +49,7 @@
     <!-- BLOCK COMMENTAIRES -->
     <div class="comment--container" v-if="displayComments" :style="[displayAllComments ?
     { 'background': 'linear-gradient(rgb(124, 205, 255), white)' } : {}]">
+
         <div class="singlecomment" v-for:="comment in comments" :key="comments.comment_id" :id="comment.comment_id">
             <div class="comment--user">
                 <router-link :to="{ name: 'UserProfile', params: { id: comment.comment_author_id } }">
@@ -70,17 +69,18 @@
             <span v-if="comment.comment_id != commentToModif" :id="comment.comment_id" class="comment--text">
                 {{ comment.comment_text }}</span>
 
-            <!-- FORM modifyComment -->
+           
             <div v-else class="modifyComment">
                 <form class="modifyComment--form" @submit="submitModifyComment($event, comment.comment_id)">
                     <textarea v-model="comment.comment_text" ref="modifiedText"></textarea>
                     <input class="modifyComment--submit" type="submit" value="➕" />
-                    <span class="alertMessage" v-if="commentAlertMsg">{{ commentAlertMsg }}</span>
+
                 </form>
+                <span class="alertMessage" v-if="commentAlertMsg">{{ commentAlertMsg }}</span>
             </div>
 
 
-            <!-- BOUTONS MODIFIER / SUPPRIMER UN COMMENTAIRES -->
+           <!-- BOUTONS MODIFIER / SUPPRIMER UN COMMENTAIRES  -->
             <div class="comment--btn" v-if="isAuthorLogin(comment.comment_author_id)">
                 <span @click="clickModifyComment(comment.comment_id)" class="modifyComment--btn"
                     id="modifyComment">🖊️</span>
@@ -121,6 +121,7 @@ export default {
             isCommentAuthor: false,
             commentToModif: "",
             modifiedText: "",
+            imgPath : 'http://localhost:3000/images/',
         };
     },
     props: ['post', 'id', 'fullname'],
@@ -186,14 +187,14 @@ export default {
                         else {
                             this.alertMsgModif = res.error ? (res.error) : (res);
                         }
-                       // console.log(res.response.data.message)
+                        // console.log(res.response.data.message)
                     }
                 })
                 .catch(error => {
                     if (error.response.data.message) {
                         this.alertMsgModif = error.response.data.message;
 
-                    }else if (error.response.data.code) {
+                    } else if (error.response.data.code) {
                         this.alertMsgModif = error.message;
 
                     } else if (error.response.data) {
@@ -215,15 +216,14 @@ export default {
             await axios.delete("http://localhost:3000/api/posts/" + paramsId, header)
                 .then(res => {
                     if (res.status == 200) {
-                        this.succesMessage = res.data;
-                        this.alertMsg = "";
                         this.postExist = false;
-                            setTimeout(this.$parent.getPosts(), 500);
+                        setTimeout(this.$parent.getPosts(), 500);
+                        window.alert("Post supprimé !");
                     }
                     else {
                         this.succesMessage = "";
                         this.alertMsg = res.error ? (res.error) : (res.data) ? (res.data) : (res);
-                        console.log(res);
+                       // console.log(res);
                     }
                 })
                 .catch((error) => {
@@ -283,12 +283,13 @@ export default {
             const defaultImgPath = require('../assets/defaulthuman.jpg');
             await axios.get(`http://localhost:3000/api/comment/${paramsId}`, header)
                 .then(res => {
-                    // console.log("getComments");
-                    // console.log(res.data);
                     // gestion des images
                     res.data.forEach(data => {
                         if (data.user_img == "" || data.user_img == null || data.user_img == undefined) {
                             data.user_img = defaultImgPath;
+                        }
+                        else if(data.user_img){
+                            data.user_img = this.imgPath + data.user_img;
                         }
                         if (data.comment_author_id == userId) {
                             this.isCommentAuthor = true;
@@ -309,8 +310,6 @@ export default {
 
         },
         isAuthorLogin(id) {
-            // console.log(id)
-            // console.log(sessionStorage.getItem('id'))
             if (sessionStorage.getItem('id') == id || sessionStorage.getItem('id') == 1) {
                 return true;
             }
@@ -319,9 +318,6 @@ export default {
             }
         },
         clickModifyComment(commentId) {
-            // console.log("demande de modif");
-            // console.log('comment id : ' + commentId)
-            // console.log('post id :' + this.id);
             if (this.commentToModif == commentId) {
                 this.commentToModif = "";
             }
@@ -331,8 +327,8 @@ export default {
         },
         async submitModifyComment($event, commentId) {
             $event.preventDefault();
-            console.log(commentId);
-            console.log("post du comment");
+           // console.log(commentId);
+           // console.log("post du comment");
             const modifText = this.$refs.modifiedText[0].value;
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -340,13 +336,12 @@ export default {
                 comment_text: modifText,
             }
             await axios.put(`http://localhost:3000/api/comment/${commentId}`, body, header)
-                .then(res => {
-                    console.log(res);
+                .then(()=> {
                     this.clickModifyComment();
                     this.commentAlertMsg = "";
                 })
                 .catch(error => {
-                    this.commentAlertMsg = error.response.data.code ? (error.response.data.code) : (error.message);
+                    this.commentAlertMsg = error.response.data.message;
                 })
         },
         async deleteComment(id) {
@@ -355,7 +350,6 @@ export default {
             const header = { headers: { "Authorization": `Bearer ${token}` } };
             axios.delete(`http://localhost:3000/api/comment/${id}`, header)
                 .then(() => {
-                    console.log("ok");
                     this.getComments();
                 })
                 .catch(() => {
@@ -367,7 +361,7 @@ export default {
 
         this.getPostById();
     },
-    components: { NewComment }
+    components: { NewComment, }
 }
 </script>
 

@@ -2,7 +2,10 @@
   <div v-if="session()">
     <div class="topContainer">
       <img id="logo" alt="logo" src="../assets/logoSmall.png" />
-      <router-link to="/posts">⬅️ Retour aux actus</router-link>
+      <router-link to="/posts">
+        <p>⬅️ </p>
+        <p>Retour aux actus</p>
+      </router-link>
     </div>
     <hr>
 
@@ -86,8 +89,7 @@ export default {
       file: "",
       alertMsg: "",
       succesMessage: "",
-
-
+      imgPath: 'http://localhost:3000/images/',
     }
   },
   methods: {
@@ -116,15 +118,16 @@ export default {
     async modifyUser(e) {
       e.preventDefault();
       const token = (sessionStorage.getItem('token'));
-      const id = window.location.href.slice(27);
-      const config = {
+      let params = (new URL(document.location)).searchParams;
+      let searchId = parseInt(params.get('id'));
+      // console.log("ModifUser | id");
+      // console.log(searchId);
+      const header = {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       };
-      // console.log("ID + config");
-      // console.log(id, config);
       //utiliser ref ???
       const user_nom = document.getElementById('user_nom').value;
       const user_prenom = document.getElementById('user_prenom').value;
@@ -143,26 +146,14 @@ export default {
         image: this.file,
       }
 
-      await axios.put(`http://localhost:3000/api/users/${id}`, body, config)
-        .then(res => {
-          //console.log(res);
-          this.succesMessage = res.data.message;
-          this.alertMsg = "";
+      await axios.put(`http://localhost:3000/api/users/${searchId}`, body, header)
+        .then(() => {
+          // router.push('/posts')
           setTimeout(this.getUser(), 300);
         })
         .catch(error => {
-          if (error.response.data.message) {
-            this.succesMessage = "";
-            this.alertMsg = error.response.data.message;
-          }
-          else if (error.response.data) {
-            this.succesMessage = "";
-            this.alertMsg = error.response.data;
-          }
-          else {
-            this.succesMessage = "";
-            this.alertMsg = error;
-          }
+          this.succesMessage = "";
+          this.alertMsg = error.response.data.message ? (error.response.data.message) : (error.message);
           console.log(error)
         })
     },
@@ -170,7 +161,9 @@ export default {
       e.preventDefault();
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } };
-      const searchId = window.location.href.slice(27);
+      let params = (new URL(document.location)).searchParams;
+      let searchId = parseInt(params.get('id'));
+      console.log(searchId);
       await axios.delete('http://localhost:3000/api/users/' + searchId, header)
         .then((res) => {
           alert("Compte supprimé !");
@@ -179,26 +172,17 @@ export default {
           router.push('/');
         })
         .catch(error => {
-          if (error.response.data.message) {
-            this.succesMessage = "";
-            this.alertMsg = error.response.data.message;
-          }
-          else if (error.response.data) {
-            this.succesMessage = "";
-            this.alertMsg = error.response.data;
-          }
-          else {
-            this.succesMessage = "";
-            this.alertMsg = error;
-          }
+          this.succesMessage = "";
+          this.alertMsg = error.response.data.message ? (error.response.data.message) : (error.message);
           console.log(error)
         })
     },
     async getUser() {
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } };
-      const searchId = window.location.href.slice(27);
       const defaultImgPath = require('../assets/defaulthuman.jpg');
+      let params = (new URL(document.location)).searchParams;
+      let searchId = parseInt(params.get('id'));
       await axios.get('http://localhost:3000/api/users/' + searchId, header)
         .then(res => {
           this.data = res.data[0];
@@ -206,7 +190,7 @@ export default {
             this.data.user_img = defaultImgPath;
           }
           else {
-            this.data.user_img = res.data[0].user_img;
+            this.data.user_img = this.imgPath + res.data[0].user_img;
           }
           this.data.user_date = (this.data.user_date.slice(0, 16).replace('T', ' à ').replace('"', ''));
           //s'il sagit du compte de l'user, le back renvoi le mail
@@ -215,7 +199,7 @@ export default {
           }
         })
         .catch(error => {
-          //  console.log(error);
+          console.log(error);
           return this.alertMsg = error;
         })
     },
@@ -289,7 +273,7 @@ export default {
 }
 
 .btn--delete {
-
+  width:60%;
   border: none;
   border: 2px solid black;
 
@@ -298,6 +282,7 @@ export default {
     background: rgb(219, 145, 145);
   }
 }
+
 
 .user-img {
   margin: 8px auto;
@@ -313,12 +298,24 @@ export default {
   flex-direction: column;
 
   & a {
+    display: flex;
+    justify-content: space-around;
+    align-items : center;
+    margin: 24px auto;
+    width: 33%;
+    min-width: 230px;
+    border: 2px solid royalblue;
+    border-radius: 24px;
+    box-shadow: 3px 1px;
     color: royalblue;
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold;
     text-decoration: none;
+    background-color: rgba(245, 245, 245, 0.858);
 
     &:hover {
+      box-shadow: 0px -1px;
+      background-color: rgb(186, 216, 255);
       text-decoration: underline;
     }
   }

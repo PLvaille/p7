@@ -14,10 +14,7 @@
           </ul>
         </div>
       </aside>
-
-
       <img id="logo" src="../assets/logo.png" />
-
       <aside class="header--container">
         <div class="newUsers">
           <h4>Les derniers collaborateurs inscrits</h4>
@@ -27,7 +24,6 @@
                 <p>{pierre-louis}</p>
                 <p>{user_nom}</p>
               </div>
-
               <img class="newUser" alt="pohot de profile de {userid}"
                 src="https://st.depositphotos.com/1909187/2297/i/600/depositphotos_22971972-stock-photo-blank-white-male-head-front.jpg" />
             </li>
@@ -51,18 +47,12 @@
         </div>
       </aside> -->
 
-
-
-
     <nav class="header--nav" id="headerNav">
       <router-link v-if="user_id" :to="{ name: 'UserProfile', params: { id: user_id } }">Mon profil 👤</router-link>
-      <!-- <a href="#newPost">Dites quelque chose !</a> | -->
       <router-link @click="logout" to="/">Déconnexion 🔴</router-link>
     </nav>
 
-
     <!-- </div> -->
-    
   </div>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-  <!-- block pour nouveau post -->
+  <!-- composant NewPost -->
   <NewPost />
   <hr>
 
@@ -26,7 +26,7 @@
       <PostComments :post="post" :id="post.post_id" />
     </div>
   </div>
-      <button class="loadMore" @click="morePosts">↕️ Afficher plus de post ↕️</button>
+      <!-- <button class="loadMore" @click="morePosts">↕️ Afficher plus de post ↕️</button> -->
 
 </template>
 
@@ -73,7 +73,7 @@ export default {
           // if(this.postsData.length == 0){
           //   console.log("premiere demande")
           this.postsData = res.data;
-          console.log(this.postsData);
+          //console.log(this.postsData);
          // }
           //console.log("update");
         })

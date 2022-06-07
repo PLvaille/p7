@@ -38,25 +38,16 @@ export default {
       await axios.post(`http://localhost:3000/api/comment/${postId}`, body, header)
         .then(res => {
           this.alertMsg = "";
-          this.succesMessage = `${res.data} ✔️`;
+          this.succesMessage = `${res.data.message} ✔️`;
           console.log(res);
           this.$parent.getComments();
           //ràz du contenue text
           this.comment_text = "";
         })
         .catch(error => {
-          if (error.response.data.message) {
-            this.succesMessage = "";
-            this.alertMsg = error.response.data.message;
-          }
-          else if (error.response.data) {
-            this.succesMessage = "";
-            this.alertMsg = error.response.data;
-          }
-          else {
-            this.succesMessage = "";
-            this.alertMsg = error;
-          }
+
+          this.alertMsg = error.response.data.message ? (error.response.data.message) : (error.message);
+          this.succesMessage = "";
           console.log(error)
         })
     }

@@ -14,13 +14,15 @@
       <label for="user_nom"> *Votre nom :</label>
       <input type="text" minlength="2" maxlength="30" v-model="user_nom" name="user_nom" id="user_nom" required>
       <label for="user_prenom"> *Votre prénom :</label>
-      <input type="text" minlength="2" maxlength="30" v-model="user_prenom" name="user_prenom" id="user_prenom" required>
+      <input type="text" minlength="2" maxlength="30" v-model="user_prenom" name="user_prenom" id="user_prenom"
+        required>
       <label for="user_age"> *Votre age :</label>
       <input type="number" v-model="user_age" name="user_age" id="user_age" required>
       <label for="user_service"> Le service dans lequel vous travaillez :</label>
       <input type="text" minlength="2" maxlength="30" v-model="user_service" name="user_service" id="service">
       <label for="user_img">Selectionnez une image de profil</label>
-      <input type="file" ref="file" @change="uploadFile()" accept=".jpg, .jpeg, .png, .gif" id="user_img" name="user_img">
+      <input type="file" ref="file" @change="uploadFile()" accept=".jpg, .jpeg, .png, .gif" id="user_img"
+        name="user_img">
       <input class="btn" type="submit" id="btn-signup" value="Créer le compte" />
       <br>
       <p id="nb">* champ requis</p>
@@ -64,8 +66,8 @@ export default {
     uploadFile() {
       //on prend le file avec $refs
       //files est un tableau de l'objet file dont on prend l'index 0 = premier fichier
-      this.file = this.$refs.file.files[0];  
-   
+      this.file = this.$refs.file.files[0];
+
     },
     // methode pour envoyer au back
     async createAccount(e) {
@@ -80,10 +82,10 @@ export default {
         user_password: this.user_password,
         user_service: this.user_service,
         // le champs doit s'appeler image pour multer (et pas file)
-        image : this.file,
+        image: this.file,
       }
       // header multipart pour gérer le fichier entrant
-      const header = { headers: {'Content-Type': 'multipart/form-data'}};
+      const header = { headers: { 'Content-Type': 'multipart/form-data' } };
       await axios.post('http://localhost:3000/api/users/signup', body, header)
         //201
         .then(res => {
@@ -96,17 +98,10 @@ export default {
             this.alertMsg = "Erreur inatendue !"
             console.log("error")
           }
-        
         })
         //affichage des erreurs au dessus du form
         .catch(error => {
-          if (error.response.data.message) {
-            this.alertMsg = error.response.data.message
-          }
-         
-          else {
-            this.alertMsg = error;
-          }
+          this.alertMsg = error.response.data.message || error.response.data || error.message || error;
         })
     }
   },

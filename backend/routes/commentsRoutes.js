@@ -12,6 +12,7 @@ const commentsController = require('../controllers/commentsController');
 
 //obtenir les commentaires d'un post 
 router.get("/:postId", auth, multer, commentsController.getComments);
+//http://localhost:3000/api/comment/:postid
 
 //commenter un commentaire sur un post
 router.post("/:postId", auth, multer, commentsController.comment);
@@ -30,6 +31,7 @@ router.post("/:postId/likes", auth, multer, commentsController.addLike);
 // http://localhost:3000/api/comment/:postid/likes
 
 router.get("/:postId/likes", auth, multer, commentsController.getLikes)
+// http://localhost:3000/api/comment/:postid/likes
 
 module.exports = router;
 

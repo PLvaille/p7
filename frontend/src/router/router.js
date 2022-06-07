@@ -5,8 +5,6 @@ import HomePage from "../vues/HomePage";
 import UserProfile from "../components/UserProfil";
 import NotFound from "../components/NotFound";
 
-
-
 const routes = [{
     name: 'LoginPage',
     path: '/',
@@ -19,7 +17,7 @@ const routes = [{
 },
 {
     name: 'UserProfile',
-    path: '/user/:id',
+    path: '/users/?id=:id',
     component: UserProfile,
 },
 {
@@ -32,16 +30,6 @@ const routes = [{
 const router = createRouter({
     history: createWebHistory(),
     routes,
-    // scrollBehavior(to, from, savedPosition) {
-    //     if (savedPosition) {
-    //       return savedPosition;
-    //     } else {
-    //       return {
-    //         el: to.hash,
-    //         behavior: "smooth",
-    //       };
-    //     }
-    // }
 });
 
 export default router;

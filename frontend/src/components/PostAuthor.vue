@@ -12,6 +12,7 @@ export default {
             userNom: "",
             userPrenom: "",
             userImg: require('../assets/defaulthuman.jpg'),
+            imgPath : 'http://localhost:3000/images/',
         }
     },
     props: ['id'],
@@ -19,20 +20,16 @@ export default {
     methods: {
 
         async getUsers() {
-            // console.log("==============postAuthor | postData ================")
-            // console.log(this.id);
-            // console.log(this.postData);
             const token = (sessionStorage.getItem('token'));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
             const paramsId = this.id;
-            //const path = 'http://localhost:3000/images/'
             await axios.get('http://localhost:3000/api/users/' + paramsId, header)
                 .then(res => {
                     this.userData = res.data;
                     this.userNom = this.userData[0].user_nom;
                     this.userPrenom = this.userData[0].user_prenom;
                     if(this.userData[0].user_img && this.userData[0].user_img.length > 1){
-                        this.userImg = this.userData[0].user_img;
+                        this.userImg =  this.imgPath + this.userData[0].user_img;
                     }
                 })
                 .catch(error => {

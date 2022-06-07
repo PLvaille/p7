@@ -11,7 +11,7 @@ const userValidation = require('../models/user_model');
 const fs = require('fs');
 
 function deleteImg(file) {
-    if (file) {
+    if (file && file != "" && file != null && file != undefined) {
         fs.unlinkSync(`images/${file.filename}`)
     }
 }
@@ -51,10 +51,9 @@ exports.createNewUser = async (req, res) => {
                     //on verifie les champs avec Joi
                     const validUser = userValidation.validate(userToValidate);
                     if (validUser.error) {
-                        // return res.status(400).json({ message: "Erreur de formulaire " + validUser.error });
                         deleteImg(req.file)
-                        throw "Erreur de formulaire" + validUser.error;
-
+                        //return res.status(400).json({ message: validUser.error });
+                        throw "" + validUser.error;
                     }
                     //si tout est bon
                     else {
@@ -88,7 +87,7 @@ exports.createNewUser = async (req, res) => {
                     }
                 })
                 .catch(err => {
-                    res.status(500).json({message : err});
+                    res.status(500).json({ message: err });
                 });
         }
     }
@@ -99,7 +98,7 @@ exports.createNewUser = async (req, res) => {
 
 // si login ok => renvoie un objet avec id et token
 exports.login = async (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     if (!req.body.user_email || !req.body.user_password) {
         return res.status(400).json({ message: "Veuillez saisir votre adresse mail et votre mot de passe." });
     }
@@ -149,7 +148,7 @@ exports.getUserById = async (req, res) => {
     const userId = req.auth;
     //si requete sur l'admin que le nom prenom date
     if (requestedid == 1) {
-        db.query('SELECT user_prenom, user_nom, user_date FROM users WHERE user_id = 1', (error, result) => {
+        db.query('SELECT user_prenom, user_nom, user_date, user_age FROM users WHERE user_id = 1', (error, result) => {
             if (error) {
                 res.status(400).json({ message: error });
             }
@@ -193,6 +192,7 @@ exports.modifyUser = async (req, res) => {
     }
     //on récupere les infos de l'utilisateur à l'id demandé
     db.query(`SELECT * FROM users WHERE user_id = ?;`, requestedId, (error, resultat) => {
+        const oldImg = resultat[0].user_img;
         if (error) {
             return res.status(400).json({ message: error });
         }
@@ -259,6 +259,7 @@ exports.modifyUser = async (req, res) => {
             if (validUser.error) {
                 deleteImg(req.file)
                 return res.status(400).json({ message: validUser.error.message });
+
                 //si tout est valide 
             } else {
                 //on ajoute password 
@@ -269,7 +270,6 @@ exports.modifyUser = async (req, res) => {
                 if (password) {
                     //import du model de mot de pass qui devra être respecté
                     const passwordSchema = require('../models/password');
-
                     if (!passwordSchema.validate(password)) {
                         deleteImg(req.file)
                         return res.status(400).json({ message: "Le mot de passe doit contenir 8 caractères minimun, au moins 1 majuscule, 1 minuscule et sans espaces, et ne doit pas être trop simple" });
@@ -285,15 +285,18 @@ exports.modifyUser = async (req, res) => {
                     }
                 }
                 //maintenant qu'on a le mot de passe on passe à la requete UPDATE, notre seule erreur peut être un doublon d'email
-                db.query(`UPDATE users SET ? WHERE user_id = ${req.params.id};`, modifyRequest, (err, response) => {
+                db.query(`UPDATE users SET ? WHERE user_id = ${req.params.id};`, modifyRequest, (err) => {
                     if (err) {
                         deleteImg(req.file)
                         return res.status(400).json({ message: "Cette adresse email est déjà utilisée." });
                     }
                     else {
                         //on supprime l'ancienne image et mise à jour de la db
-                        deleteImg(req.file)
-                        return res.status(201).json({ message: "Compte modifié !" });
+                        if (req.file) {
+                            fs.unlinkSync(`images/${oldImg}`)
+                        }
+                        //ou status 201 ?
+                        return res.status(200).json({ message: "Compte modifié !" });
                     }
                 });
             }
@@ -302,59 +305,77 @@ exports.modifyUser = async (req, res) => {
 }
 
 exports.deleteUser = async (req, res) => {
-    // il faudra prévoir une table de sauvegarde dans le milieu pro
-    // => pas de cascade j'ai pas mis en place la logique de FK cascades
+    // => il faudra prévoir une table de sauvegarde dans le milieu pro
+    // => ici pas de cascade (fail les FK)
 
     // supprimer les posts tous les comms & likes des dits posts et leurs fichiers
-    const userToDelete = req.params.id;
+    const userToDelete = parseInt(req.params.id);
     //on sécurise l'admin
     if (userToDelete == 1) {
-        return res.status(403).json({ message : "Impossible de supprimer l'admin !"})
+        return res.status(403).json({ message: "Impossible de supprimer l'admin !" })
     }
     const userId = req.auth;
     if (userToDelete == userId || userId == 1) {
         //on supprimera le profil de l'utilisateur, ses posts et tous les commentaires liés à ses posts et ses commentaires
+        // on commence par selectionner l'user et ses posts
         db.query(`SELECT * FROM users LEFT JOIN posts ON (user_id = post_author_id) WHERE user_id = ?;`, userToDelete, (err, resultat) => {
             if (err) {
-                return res.status(400).json({message : err});
+                return res.status(400).json({ message: err });
             }
             else {
                 let images = [];
-                //suppression des images des posts, on stock les images dans un tableau
+                let postsToDelete = [];
+                //pour supprimer les images des posts, on stock les images et posts_id dans 2 tableaux
                 resultat.forEach(e => {
                     images.push(e.post_img);
+                    postsToDelete.push(e.post_id);
                 });
-
-                //on supprimes les doublons du tableau images
-                let uniqueImages = [...new Set(images)];
-                //et on supprime les images du tableau du dossier images
-                uniqueImages.forEach(e => {
-                    if (e != null && e.length > 1) {
-                        fs.unlinkSync(`images/${e}`);
-                        // console.log(e + " : supprimée !!!");
+                try {
+                    //on boucle sur le tableau posts_id
+                    //suppression des posts créés par l'user + les likes et les commentaires des posts de ceux ci
+                    postsToDelete.forEach(post => {
+                        db.query(`
+                        DELETE p, c, l FROM posts AS p 
+                        LEFT JOIN comments AS c ON (c.commented_post_id = p.post_id)
+                        LEFT JOIN likes AS l ON (l.like_post_id = p.post_id) 
+                        WHERE post_id = ${post};`)
+                        //j'aurais pus ecrire WHERE post_id IN (n, n1, n2... nx)
+                        if (err) {
+                            console.log(err);
+                            throw err;
+                        }
+                        console.log("==== ok delete posts ====")
+                    })
+                        //suppression de l'utilisateur de ses commentaires et likes
+                        db.query(`
+                        DELETE u, c, l FROM users AS u
+                        LEFT JOIN comments AS c ON (c.comment_author_id = u.user_id) 
+                        LEFT JOIN likes AS l ON (l.like_user_id = u.user_id) 
+                        WHERE user_id = ${req.auth};`)
+                        if (err) {
+                            console.log(err);
+                            throw err
+                        }
+                        else {
+                            //on supprimes les doublons du tableau images
+                            let uniqueImages = [...new Set(images)];
+                            //et on supprime les images du tableau du dossier images
+                            uniqueImages.forEach(img => {
+                                if (img != null && img.length > 1) {
+                                    fs.unlinkSync(`images/${img}`);
+                                }
+                            });
+                            //suppression de l'image de profil de l'utilisateur
+                            if (resultat[0].user_img.length > 1) {
+                                fs.unlinkSync(`images/${resultat[0].user_img}`);
+                            }
+                            return res.status(200).json({ message: "Toutes les entrées de l'utilisateur ont été supprimées !" })
+                        }
                     }
-                });
-
-                if (resultat[0].user_img.length > 4) {
-                    fs.unlinkSync(`images/${resultat[0].user_img}`);
+                
+                catch {
+                    return res.status(400).json({ message: "Erreur lors de la suppression des entrées de l'utilisateur" })
                 }
-
-                //revoir ici
-                //suppression des entrées de la db
-                //SET SQL_SAFE_UPDATES = 0; ????
-                db.query(`DELETE users, posts, comments, likes 
-                FROM users
-                LEFT JOIN posts ON (users.user_id = posts.post_author_id) 
-                LEFT JOIN comments ON (comments.comment_author_id = posts.post_author_id) 
-                LEFT JOIN likes ON (likes.like_user_id = users.user_id) 
-                WHERE users.user_id = ?;`, userToDelete, (err) => {
-                    if (err) {
-                        return res.status(400).json({ message: err });
-                    }
-                    else {
-                        return res.status(200).json(({ message: "Toutes les entrées de l'utilisateur ont été supprimées !" }));
-                    }
-                }); //fin 2eme query
             }
         }); //fin 1ere query
     } //fin if userTodelete == userId || userId == 1

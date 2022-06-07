@@ -26,9 +26,12 @@ exports.getAllPosts = async (req, res) => {
 
     // faire en 1 seule requete posts + commentaires + likes ?
     //LIMIT 10 OFFSET ? , parseInt(offset)
+//SELECT * FROM posts 
+//LEFT JOIN comments ON (posts.post_id = comments.commented_post_id) 
+//LEFT JOIN likes ON (like_post_id = posts.post_id)
+//ORDER BY post_date DESC ;
+
     db.query(`SELECT * FROM posts 
-    LEFT JOIN comments ON (posts.post_id = comments.commented_post_id) 
-    LEFT JOIN likes ON (like_post_id = posts.post_id)
     ORDER BY post_date DESC ;`, (err, resultat) => {
         if (err) {
             return res.status(400).json({ message: err });
@@ -37,9 +40,9 @@ exports.getAllPosts = async (req, res) => {
             //edition de la date
             resultat.forEach(e => {
                 const postDateEdit = JSON.stringify(e.post_date).slice(0, 21).replace('T', ' à ').replace('"', 'le ');
-                const commentDateEdit = JSON.stringify(e.comment_date).slice(0, 21).replace('T', ' à ').replace('"', 'le ');
+               // const commentDateEdit = JSON.stringify(e.comment_date).slice(0, 21).replace('T', ' à ').replace('"', 'le ');
                 e.post_date = postDateEdit;
-                e.comment_date = commentDateEdit;
+              //  e.comment_date = commentDateEdit;
             });
             return res.status(200).json(resultat);
             //tableau d'objets
@@ -153,7 +156,7 @@ exports.modifyPost = async (req, res, err) => {
                         }
                         //si tout es ok
                         else {
-                            console.log(post);
+                            //console.log(post);
                             db.query(`UPDATE posts SET ? WHERE post_id = '${postId}';`, post, (err) => {
                                 if (err) {
                                     deleteImg(req.file);
@@ -161,11 +164,10 @@ exports.modifyPost = async (req, res, err) => {
                                     return res.status(400).json({ message: err });
                                 }
                                 else {
-                                    //on recupere l'ancienne img
+                                    //on recupere et supprime l'ancienne img si elle existe
+                                    if(req.file && resultat[0].post_img && resultat[0].post_img != null && resultat[0].post_img != undefined && resultat[0].post_img != ""){
                                     const oldImage = resultat[0].post_img;
-                                    //si son nom dans la db était pas NULL on la supprime
-                                    if (oldImage.length > 1) {
-                                        fs.unlinkSync(`images/${oldImage}`);
+                                    fs.unlinkSync(`images/${oldImage}`);
                                     }
                                     return res.status(200).json({ message: "Post modifié." });
                                 }

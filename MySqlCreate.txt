@@ -1,0 +1,46 @@
+DROP DATABASE IF EXISTS groupomania;
+CREATE DATABASE groupomania 
+DEFAULT CHARACTER SET utf8mb4 COLLATE = utf8mb4_general_ci;
+USE groupomania;
+
+CREATE TABLE users ( 
+ user_id INT(7) NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+ user_password VARCHAR(100) NOT NULL,
+ user_nom VARCHAR(50) NOT NULL,
+ user_prenom VARCHAR(50) NOT NULL,
+ user_img VARCHAR(255) NULL, 
+ user_email VARCHAR(255) NOT NULL UNIQUE,
+ user_age INT(2) NOT NULL,
+ user_service VARCHAR(100),
+ user_date  DATETIME DEFAULT NOW() NOT NULL
+)
+DEFAULT CHARACTER SET utf8mb4 COLLATE = utf8mb4_general_ci;
+
+
+CREATE TABLE posts(
+post_id INT(9) NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+post_author_id INT(7) NOT NULL,
+post_title VARCHAR(100) NOT NULL,
+post_text TEXT NOT NULL,
+post_img VARCHAR(255),
+post_date  DATETIME DEFAULT NOW() NOT NULL
+)
+DEFAULT CHARACTER SET utf8mb4 COLLATE = utf8mb4_general_ci;
+
+DROP TABLE IF EXISTS comments;
+CREATE TABLE comments (
+comment_id INT(9) NOT NULL UNIQUE AUTO_INCREMENT PRIMARY KEY,
+commented_post_id INT(9) NOT NULL,
+comment_author_id INT(7) NOT NULL,
+comment_text TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+comment_date DATETIME DEFAULT NOW() NOT NULL
+)
+DEFAULT CHARACTER SET utf8mb4 COLLATE = utf8mb4_general_ci;
+
+CREATE TABLE likes (
+like_id	INT(11) PRIMARY KEY AUTO_INCREMENT UNIQUE NOT NULL,
+like_user_id INT(7) NOT NULL,
+like_post_id INT(9) NOT NULL
+)
+
+INSERT INTO users (user_id, user_password, user_nom, user_prenom, user_img, user_email, user_age, user_service) VALUES ('1', 'Test1234','admin', 'super', '', 'admin@test.com', '42', 'admin');

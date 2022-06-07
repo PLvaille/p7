@@ -51,7 +51,7 @@ exports.modifyComment = async (req, res) => {
     // console.log("--------------------------------");
     // console.log((newComment));
     db.query(`SELECT * FROM comments WHERE comment_id = ?;`, commentId, (err, resultat) => {
-        console.log(resultat[0]);
+        //console.log(resultat[0]);
         if (err) {
             return res.status(400).json({ message: err });
         }
