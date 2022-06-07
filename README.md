@@ -12,15 +12,14 @@ Here I worked with, Mysql and NodeJS in the backend and VueJS framework in the f
 
 
 # Installation
-Open the project with your favorite IDE / Bash,
-but note that the following commands were tested only in VisualCodeStudio
+You need npm to be installed on your computer. Then in the main project file run your IDE or Bash.
 
 ## - BackEnd installation -
 
 ### # Mysql + DataBase creation 
 Install Mysql on your computer, then copy/paste and run the whole commands from the root file "MySqlCreate.txt" in a new Mysql tab.
-Note : the first user (user_id = 1) is the admin and can remove / edit all the posts / comments.
-You can edit the VALUES to chose your own password / mail etc... 
+Note : the first user (user_id = 1) is the admin and can remove & edit all the posts & comments.
+You can edit the VALUES to chose your own password & mail etc... 
 Default admin login / password are : admin@test.com  / Test1234 
 
 ### # Backend -
