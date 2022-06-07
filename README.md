@@ -12,7 +12,7 @@ Here I worked with, Mysql and NodeJS in the backend and VueJS framework in the f
 
 
 # Installation
-You need npm to be installed on your computer. Then in the main project file run your IDE or Bash.
+You need npm to be installed on your computer. Then in the main project file run a terminal.
 
 ## - BackEnd installation -
 
