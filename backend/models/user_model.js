@@ -21,6 +21,7 @@ const userValidation = Joi.object().keys({
     user_age: Joi.number().integer().min(18).max(100).required().messages({
         'number.base' : `Veuillez indiquer un entier naturel`,
         'number.min' : `Vous devez être majeur !`,
+        'number.max' : `Désolé c'est interdit aux vieux !`
     }),
     user_service: Joi.string().min(2).max(30).allow('').optional().messages({
         'string.base' : `Veuillez utiliser une chaine de caractères`,

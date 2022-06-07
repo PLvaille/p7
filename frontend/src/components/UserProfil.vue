@@ -120,8 +120,6 @@ export default {
       const token = (sessionStorage.getItem('token'));
       let params = (new URL(document.location)).searchParams;
       let searchId = parseInt(params.get('id'));
-      // console.log("ModifUser | id");
-      // console.log(searchId);
       const header = {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -150,6 +148,8 @@ export default {
         .then(() => {
           // router.push('/posts')
           setTimeout(this.getUser(), 300);
+          this.succesMessage = "Compte modifié !";
+          this.alertMsg = "";
         })
         .catch(error => {
           this.succesMessage = "";
@@ -214,6 +214,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#deleteUser {
+  margin-top: 32px;
+}
 #imgLabel {
   margin-top: 8px;
 }
@@ -298,12 +301,13 @@ export default {
   flex-direction: column;
 
   & a {
+    padding :24px 8px;
     display: flex;
     justify-content: space-around;
     align-items : center;
     margin: 24px auto;
     width: 33%;
-    min-width: 230px;
+    min-width: 280px;
     border: 2px solid royalblue;
     border-radius: 24px;
     box-shadow: 3px 1px;
@@ -317,6 +321,9 @@ export default {
       box-shadow: 0px -1px;
       background-color: rgb(186, 216, 255);
       text-decoration: underline;
+    }
+    & p {
+      margin : 0;
     }
   }
 

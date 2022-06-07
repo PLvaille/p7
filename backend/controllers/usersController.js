@@ -248,7 +248,7 @@ exports.modifyUser = async (req, res) => {
                 // cas ou le mail n'est pas valide
                 if (validEmail.error) {
                     deleteImg(req.file)
-                    return res.status(400).json({ message: "Nouvel e-mail invalide ! " + validEmail.error.message });
+                    return res.status(400).json({ message: "Nouvel e-mail invalide ! "});
                 }
                 else {
                     //si valide ajout à l'objet
