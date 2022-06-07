@@ -31,7 +31,7 @@ cd .\backend\
 
 mkdir images
 
-echo ".env"
+echo > ".env"
 
 code -r .env
 
