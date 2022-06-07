@@ -12,7 +12,7 @@ Here I worked with, Mysql and NodeJS in the backend and VueJS framework in the f
 
 
 # Installation
-Open the project with your favorite IDE,
+Open the project with your favorite IDE / Bash,
 but note that the following commands were tested only in VisualCodeStudio
 
 ## - BackEnd installation -
