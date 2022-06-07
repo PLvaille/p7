@@ -94,14 +94,12 @@ export default {
             window.alert("Compte créé avec succès, veuillez maintenant vous connecter !");
             this.openLogin();
           }
-          else {
-            this.alertMsg = "Erreur inatendue !"
-            console.log("error")
-          }
         })
         //affichage des erreurs au dessus du form
         .catch(error => {
-          this.alertMsg = error.response.data.message || error.response.data || error.message || error;
+          this.alertMsg = error.response.data.message ?
+            (error.response.data.message) : (error.message) ?
+              (error.message) : ("Erreur lors de la creation du compte.");
         })
     }
   },

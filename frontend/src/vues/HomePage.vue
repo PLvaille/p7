@@ -10,7 +10,6 @@
       <PostsFeed/>
     </div>
 
-
   </div>
   <div v-else>
     <router-link to="/" id="connectezvous"><span>Connectez vous</span></router-link>

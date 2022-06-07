@@ -1,5 +1,5 @@
 const Joi = require('joi');
-
+//definition du schema des posts
 const postSchema = Joi.object().keys({
     post_author_id: Joi.number().integer().required(),
     post_title: Joi.string().min(3).max(80).required().messages({
@@ -15,6 +15,7 @@ const postSchema = Joi.object().keys({
       }),
     post_img: Joi.string().allow('').optional()
 })
+//cette option permet d'envoyer plusieurs messages si plusieurs champs sont invalides.
     .options({
         abortEarly: false
     });

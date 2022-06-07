@@ -1,5 +1,5 @@
 const Joi = require('joi');
-
+//definition du schema d'utilisateur
 const userValidation = Joi.object().keys({
     user_nom: Joi.string().max(30).min(2).alphanum().required().messages({
         'string.base' : `Veuillez utiliser une chaine de caractères`,
@@ -29,6 +29,7 @@ const userValidation = Joi.object().keys({
         'string.max': `Votre "Service" ne peut faire plus de {#limit} caractères !`,
       })
 })
+//cette option permet d'envoyer plusieurs messages si plusieurs champs sont invalides.
     .options({
         abortEarly: false
     });

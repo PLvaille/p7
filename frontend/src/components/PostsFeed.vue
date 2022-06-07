@@ -50,6 +50,7 @@ export default {
   },
   methods: {
     //fonction pour recuperer les posts de la db
+    // lazy load finalement abandonné.
     async getPosts() {
       const token = (sessionStorage.getItem('token'));
       const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -65,23 +66,12 @@ export default {
           //   if(this.postsData.length > 1){
           //   this.postsData.push(data)
           // }
-            //pour récuperer tous les posts suivants
-            // console.log("boucle")
-            // console.log(this.postsData);
           });
-         // console.log(this.postsData);
-          // if(this.postsData.length == 0){
-          //   console.log("premiere demande")
           this.postsData = res.data;
-          //console.log(this.postsData);
-         // }
-          //console.log("update");
         })
     },
     // morePosts() {
     //   this.lazy++;
-    //   console.log('click + de post');
-    //   console.log(this.lazy);
     //   this.getPosts();
     // },
   },

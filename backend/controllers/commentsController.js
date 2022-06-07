@@ -24,7 +24,6 @@ exports.comment = async (req, res) => {
 };
 exports.getComments = async (req, res) => {
     const postId = req.params.postId;
-    // console.log("get comments id  : " + postId);
     db.query('SELECT * FROM comments LEFT JOIN users ON (users.user_id = comments.comment_author_id) WHERE commented_post_id = ?;', postId, (err, result) => {
         if (err) {
             return res.status(400).json({ message: err });
@@ -34,8 +33,6 @@ exports.getComments = async (req, res) => {
                 const dateEdit = JSON.stringify(e.comment_date).slice(0, 21).replace('T', ' à ').replace('"', 'le ');
                 e.comment_date = dateEdit;
                 delete e.user_password;
-                //console.log(e);
-
             });
             return res.status(200).json(result);
         }
@@ -44,14 +41,9 @@ exports.getComments = async (req, res) => {
 
 exports.modifyComment = async (req, res) => {
     const userId = req.auth;
-    //const postId = req.params.postId;
     const commentId = req.params.id;
     const newComment = req.body.comment_text;
-    // console.log("auth : " + userId + " postid : " + postId + " commentId : " + commentId + " newcomment : " + newComment);
-    // console.log("--------------------------------");
-    // console.log((newComment));
     db.query(`SELECT * FROM comments WHERE comment_id = ?;`, commentId, (err, resultat) => {
-        //console.log(resultat[0]);
         if (err) {
             return res.status(400).json({ message: err });
         }
@@ -119,7 +111,6 @@ exports.addLike = async (req, res) => {
         else {
             db.query('SELECT * FROM likes WHERE like_post_id = ? AND like_user_id = ?;', [postId, userId], (err, resultat) => {
                 if (err) {
-                    console.log(err)
                     return res.status(400).json({ message: err });
                 }
                 else {

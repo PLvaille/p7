@@ -50,15 +50,11 @@ export default {
           }
         })
         .catch(error => {
-          // message du backend
-         // console.log(error);
           this.messageError = error.response.data.message ? (error.response.data.message) : (error);
-         // console.log(error);
         }
         )
     }
   }
-
 }
 </script>
 

@@ -12,7 +12,9 @@
       <div v-if="toggleFormSignup">⬇️</div>
     </h2>
 
+
     <div v-if="toggleFormLogin">
+        <!-- formulaire de loggin -->
       <LoginForm />
     </div>
 
@@ -21,10 +23,12 @@
       { 'color': 'royalblue', 'text-decoration': 'underline', 'cursor': 'pointer' } :
       { 'color': 'black' }
     ]">
+
       Pas de compte ? Créez en un ! <br>
       <div v-if="toggleFormLogin">⬇️</div>
     </h2>
     <div v-if="toggleFormSignup">
+            <!-- formulaire de sign up -->
       <SignupForm @signup="toggleLogin()"/>
     </div>
   </div>

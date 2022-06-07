@@ -98,7 +98,6 @@ exports.createNewUser = async (req, res) => {
 
 // si login ok => renvoie un objet avec id et token
 exports.login = async (req, res) => {
-    //console.log(req.body);
     if (!req.body.user_email || !req.body.user_password) {
         return res.status(400).json({ message: "Veuillez saisir votre adresse mail et votre mot de passe." });
     }
@@ -122,7 +121,6 @@ exports.login = async (req, res) => {
                             return res.status(401).json({ message: "Mot de passe incorrect !" });
                         }
                         else {
-                            //console.log("OK RESP ========= ");
                             //sinon on attribu un token à l'utilisateur pour 24h en utilisant la clé défini dans les variables d'environnement
                             res.status(200).json({
                                 //message: "connexion réussie",
@@ -341,10 +339,8 @@ exports.deleteUser = async (req, res) => {
                         WHERE post_id = ${post};`)
                         //j'aurais pus ecrire WHERE post_id IN (n, n1, n2... nx)
                         if (err) {
-                            console.log(err);
                             throw err;
                         }
-                        console.log("==== ok delete posts ====")
                     })
                         //suppression de l'utilisateur de ses commentaires et likes
                         db.query(`
@@ -353,7 +349,6 @@ exports.deleteUser = async (req, res) => {
                         LEFT JOIN likes AS l ON (l.like_user_id = u.user_id) 
                         WHERE user_id = ${req.auth};`)
                         if (err) {
-                            console.log(err);
                             throw err
                         }
                         else {

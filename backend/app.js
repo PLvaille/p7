@@ -4,15 +4,6 @@
 const express = require('express');
 const app = express();
 app.use(express.json());
-// inutle ?
-// app.use(express.urlencoded());
-//body parser inutle ? 
-// const bp = require('body-parser');
-// app.use(bp.json());
-// app.use(bp.urlencoded({extended : true}));
-// cors inutile ?
-// const cors = require('cors');
-// app.use(cors());
 
 // //connexion à la DB
 const db = require('./database_connect');
@@ -49,19 +40,16 @@ app.use('/api/posts', postsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/comment', commentsRoutes);
 
-//gestion des exeption de multer
+//gestion des exceptions de multer
 const multer = require('multer');
 app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
-        console.log(err);
         return res.status(413).send('Le fichier est trop volumineux !');
     } else {
         //return res.status(500).send('Une erreure est survenue !');
         return res.status(500).send(err);
     }
 });
-
-
 
 //export de l'app
 module.exports = app;

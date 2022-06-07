@@ -5,6 +5,7 @@ const postSchema = require('../models/post');
 //import de filesystem
 const fs = require('fs');
 
+//fonction pour fs.unlink les images
 function deleteImg(file) {
     if (file) {
         fs.unlinkSync(`images/${file.filename}`)
@@ -12,24 +13,18 @@ function deleteImg(file) {
 }
 
 //route pour récupérer les (derniers) posts
-// incomplet : prevoir lazy load, LIMIT 10 avec index*n et n=10 (index commence à 0)
 exports.getAllPosts = async (req, res) => {
-    // console.log("param reçu | getAllPosts");
-    // console.log(req)
-    //    console.log(req.params);
-    //    var offset = req.params.page;
-    //    if(offset > 0){
-    //    offset *= 10;
-    //    }
-    //    console.log("offset");
-    //    console.log(offset);
-
-    // faire en 1 seule requete posts + commentaires + likes ?
-    //LIMIT 10 OFFSET ? , parseInt(offset)
+// incomplet/abandonné : lazy load, LIMIT 10 avec index*n et n=10 (index commence à 0)
+// faire en 1 seule requete posts + commentaires + likes ?
+//    var offset = req.params.page;
+//    if(offset > 0){
+//    offset *= 10;
+//    }
 //SELECT * FROM posts 
 //LEFT JOIN comments ON (posts.post_id = comments.commented_post_id) 
 //LEFT JOIN likes ON (like_post_id = posts.post_id)
-//ORDER BY post_date DESC ;
+//ORDER BY post_date DESC 
+//LIMIT 10 OFFSET ? , parseInt(offset);
 
     db.query(`SELECT * FROM posts 
     ORDER BY post_date DESC ;`, (err, resultat) => {
@@ -73,10 +68,6 @@ exports.getPostById = async (req, res) => {
 
 // route pour créer un post
 exports.createPost = async (req, res) => {
-    // console.log("==========req reçue=========");
-    // console.log(req.body);
-    // console.log("=======file ??=======");
-    // console.log(req.file);
     let image = "";
     const userId = req.auth;
     const post = {
@@ -100,8 +91,6 @@ exports.createPost = async (req, res) => {
             image = `${req.file.filename}`;
         }
         post.post_img = image;
-        // console.log("---- post à enregistrer ----");
-        // console.log(post);
         //sauvegarde de l'objet en db
         db.query('INSERT INTO posts SET ?;', post, (err) => {
             if (err) {
@@ -156,7 +145,6 @@ exports.modifyPost = async (req, res, err) => {
                         }
                         //si tout es ok
                         else {
-                            //console.log(post);
                             db.query(`UPDATE posts SET ? WHERE post_id = '${postId}';`, post, (err) => {
                                 if (err) {
                                     deleteImg(req.file);
@@ -204,7 +192,6 @@ exports.deletePost = async (req, res) => {
                     }
                     else {
                         const postAuthor = result[0].post_author_id;
-                        // console.log("postAuthor : " + postAuthor);          
                         if (postAuthor != userTryingToDeleteId && userTryingToDeleteId != 1) {
 
                             return res.status(403).json({ message: "Vous ne pouvez pas supprimer ce post." });

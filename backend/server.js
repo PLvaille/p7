@@ -2,7 +2,6 @@ const http = require('http');
 
 const app = require('./app');
 
-
 //fonction de normalisation du port d'écoute
 const normalizePort = val => {
   const port = parseInt(val, 10);

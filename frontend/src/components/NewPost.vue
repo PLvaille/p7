@@ -64,26 +64,15 @@ export default {
                         this.post_text = "";
                         this.file = "";
                         this.alertMsg = "";
-                        console.log("post créé");
                     }
                     else {
                         this.alertMsg = res;
                     }
                 })
                 .catch(error => {
-                    if (error.response.data.message) {
-                        this.alertMsg = error.response.data.message;
-                    }
-                    else if (error.response.data) {
-                        this.alertMsg = error.response.data;
-                    }
-                    else if (error.message) {
-                        this.alertMsg = error.message;
-                    }
-                    else {
-                        this.alertMsg = "Une erreur inatendue est survenue";
-                    }
-                    console.log(error);
+                    this.alertMsg = error.response.data.message ? 
+                    (error.response.data.message) : (error.message) ? 
+                    (error.message) : ("Une erreur est survenue.");
                 })
         }
     },

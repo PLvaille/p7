@@ -1,4 +1,4 @@
-//les logiques de routing pour Posts
+//les logiques de routing pour CRUD Posts
 //appel d'express et de sa methode Router()
 const express = require('express');
 const router = express.Router();

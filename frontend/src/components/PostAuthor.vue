@@ -16,9 +16,7 @@ export default {
         }
     },
     props: ['id'],
-
     methods: {
-
         async getUsers() {
             const token = (sessionStorage.getItem('token'));
             const header = { headers: { "Authorization": `Bearer ${token}` } };

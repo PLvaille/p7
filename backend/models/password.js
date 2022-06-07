@@ -1,7 +1,7 @@
 //module password-validator requis
 const passwordValidator = require('password-validator');
 
-// Schéma de mot de passe à respecter pour plus de sécurité
+// définition du schéma de mot de passe à respecter 
 const passwordSchema = new passwordValidator();
 
 passwordSchema                                                              // Contraintes

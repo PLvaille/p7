@@ -154,7 +154,6 @@ export default {
         .catch(error => {
           this.succesMessage = "";
           this.alertMsg = error.response.data.message ? (error.response.data.message) : (error.message);
-          console.log(error)
         })
     },
     async deleteUser(e) {
@@ -163,18 +162,15 @@ export default {
       const header = { headers: { "Authorization": `Bearer ${token}` } };
       let params = (new URL(document.location)).searchParams;
       let searchId = parseInt(params.get('id'));
-      console.log(searchId);
       await axios.delete('http://localhost:3000/api/users/' + searchId, header)
-        .then((res) => {
+        .then(() => {
           alert("Compte supprimé !");
-          console.log(res);
           sessionStorage.clear();
           router.push('/');
         })
         .catch(error => {
           this.succesMessage = "";
           this.alertMsg = error.response.data.message ? (error.response.data.message) : (error.message);
-          console.log(error)
         })
     },
     async getUser() {
@@ -199,7 +195,6 @@ export default {
           }
         })
         .catch(error => {
-          console.log(error);
           return this.alertMsg = error;
         })
     },

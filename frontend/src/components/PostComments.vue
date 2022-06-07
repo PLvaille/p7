@@ -126,7 +126,8 @@ export default {
     },
     props: ['post', 'id', 'fullname'],
     methods: {
-        //post
+        //posts
+        //recupere un post ses likes ses commentaires en plusieurs fonctions
         async getPostById() {
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -144,7 +145,7 @@ export default {
                 .then(this.getLikes())
                 .then(this.getComments())
                 .catch(() => {
-                    console.log("error");
+                    console.log("Erreur lors du chargement de l'id du post.");
                 });
         },
         displayAllComments() {
@@ -155,6 +156,7 @@ export default {
             //files est un tableau de l'objet file dont on prend l'index 0 = premier fichier
             this.file = this.$refs.file.files[0];
         },
+        //fonction pour modifier un post
         async modifyPost(e) {
             e.preventDefault();
             const token = (sessionStorage.getItem("token"));
@@ -177,38 +179,19 @@ export default {
                         setTimeout(this.$parent.getPosts(), 500);
                         this.modifyReq = false;
                         this.$router.push('/posts');
-
-                    }
-                    else {
-                        this.succesMessageModif = "";
-                        if (res.response.data.message) {
-                            this.alertMsgModif = res.response.data.message;
-                        }
-                        else {
-                            this.alertMsgModif = res.error ? (res.error) : (res);
-                        }
-                        // console.log(res.response.data.message)
                     }
                 })
                 .catch(error => {
-                    if (error.response.data.message) {
-                        this.alertMsgModif = error.response.data.message;
-
-                    } else if (error.response.data.code) {
-                        this.alertMsgModif = error.message;
-
-                    } else if (error.response.data) {
-                        this.alertMsgModif = error.response.data;
-                    }
-                    else {
-                        this.alertMsgModif = error;
-                    }
-                    //console.log(error);
+                      this.alertMsg = error.response.data.message ? 
+                    (error.response.data.message) : (error.message) ? 
+                    (error.message) : ("Erreur lors de la modification du post.");
                 })
         },
+        //pour ouvrir le formulaire de modif
         modifyRequest() {
             this.modifyReq = !this.modifyReq;
         },
+        //suppression d'un post
         async deletePost() {
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -220,34 +203,27 @@ export default {
                         setTimeout(this.$parent.getPosts(), 500);
                         window.alert("Post supprimé !");
                     }
-                    else {
-                        this.succesMessage = "";
-                        this.alertMsg = res.error ? (res.error) : (res.data) ? (res.data) : (res);
-                       // console.log(res);
-                    }
                 })
-                .catch((error) => {
-                    console.log(error);
+                .catch(() => {
+                    console.log("Erreur lors de la suppression du post.");
                 })
-
         },
 
         //likes
+        //recuperer les likes
         async getLikes() {
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
             const paramsId = this.id;
             await axios.get(`http://localhost:3000/api/comment/${paramsId}/likes`, header)
                 .then(res => {
-                    // console.log("==== getLikes " + this.id + "--- response ====");
-                    // console.log(res.data);
                     this.likesCounter = res.data.length;
-                    //console.log(this.likesCounter);
                 })
                 .catch(() => {
-                    console.log("error");
+                    console.log("Erreur lors du comptage des likes.");
                 });
         },
+        //envoyer / retirer un like
         async likePost() {
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -259,22 +235,14 @@ export default {
                     this.getLikes();
                 })
                 .catch(error => {
-                    if (error.response.data.message) {
-                        this.reactAlertMsg = error.response.data.message;
-                    }
-                    else if (error.response.data) {
-                        this.reactAlertMsg = error.response.data;
-                    }
-                    else {
-                        this.reactAlertMsg = error;
-                    }
-                    //   console.log(error);
-                    console.log("error");
-                })
-
+                      this.reactAlertMsg = error.response.data.message ? 
+                    (error.response.data.message) : (error.message) ? 
+                    (error.message) : ("Erreur lors du like du post.");
+                });
         },
 
         //commentaires
+        //recupérer les commentaires d'un post
         async getComments() {
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -298,17 +266,17 @@ export default {
                     // gestion propriété du commentaire
                     if (res.data.length > 0) {
                         this.comments = res.data;
-                        // console.log(res.data)
                     }
                     else {
                         this.comments = "";
                     }
                 })
                 .catch(() => {
-                    console.log("error");
+                    console.log("Erreur lors du chargement des commentaires.");
                 });
 
         },
+        //verifier si l'user est le propriétaire du commentaire ou si l'user est l'admin
         isAuthorLogin(id) {
             if (sessionStorage.getItem('id') == id || sessionStorage.getItem('id') == 1) {
                 return true;
@@ -317,6 +285,7 @@ export default {
                 return false;
             }
         },
+        //bouton pour modifier le commentaire
         clickModifyComment(commentId) {
             if (this.commentToModif == commentId) {
                 this.commentToModif = "";
@@ -325,10 +294,9 @@ export default {
                 this.commentToModif = commentId;
             }
         },
+        //requete de modification de commentaire
         async submitModifyComment($event, commentId) {
             $event.preventDefault();
-           // console.log(commentId);
-           // console.log("post du comment");
             const modifText = this.$refs.modifiedText[0].value;
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
@@ -344,8 +312,8 @@ export default {
                     this.commentAlertMsg = error.response.data.message;
                 })
         },
+        //supprimer un commentaire
         async deleteComment(id) {
-            console.log("delete");
             const token = (sessionStorage.getItem("token"));
             const header = { headers: { "Authorization": `Bearer ${token}` } };
             axios.delete(`http://localhost:3000/api/comment/${id}`, header)
@@ -353,12 +321,11 @@ export default {
                     this.getComments();
                 })
                 .catch(() => {
-                    console.log("error");
+                    console.log("Erreur lors de la suppression du commentaire.");
                 })
         }
     },
     created() {
-
         this.getPostById();
     },
     components: { NewComment, }

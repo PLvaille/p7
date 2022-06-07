@@ -1,15 +1,18 @@
 <template>
   <div class="header">
     <div class="header--img"></div>
+    
+    <!-- fonctionnalités  à mettre en place : deux bulles <aside> avec les derniers inscrit et les posts les plus commentés -->
+
+
     <!-- <div class="header--main"> -->
     <!--   <h1 class="header--welcome titre" id="welcome-msg">{User}, quoi de neuf aujourd'hui ?</h1>
-    
      <aside class="header--container">
         <div class="newsContainer">
           <h4>Les posts les plus commentés</h4>
           <ul>
             <li>{titre du 1er post}</li>
-            <li>{titre bien long du second post le plus commenté}</li>
+            <li>{titre + long du second post le plus commenté}</li>
             <li>{post3}</li>
           </ul>
         </div>
@@ -23,22 +26,6 @@
               <div class="newUser--container--name">
                 <p>{pierre-louis}</p>
                 <p>{user_nom}</p>
-              </div>
-              <img class="newUser" alt="pohot de profile de {userid}"
-                src="https://st.depositphotos.com/1909187/2297/i/600/depositphotos_22971972-stock-photo-blank-white-male-head-front.jpg" />
-            </li>
-            <li class="newUser--container">
-              <div class="newUser--container--name">
-                <p>{nom}</p>
-                <p>{prenom}</p>
-              </div>
-              <img class="newUser" alt="pohot de profile de {userid}"
-                src="https://st.depositphotos.com/1909187/2297/i/600/depositphotos_22971972-stock-photo-blank-white-male-head-front.jpg" />
-            </li>
-            <li class="newUser--container">
-              <div class="newUser--container--name">
-                <p>{grosnom}</p>
-                <p>{prenom}</p>
               </div>
               <img class="newUser" alt="pohot de profile de {userid}"
                 src="https://st.depositphotos.com/1909187/2297/i/600/depositphotos_22971972-stock-photo-blank-white-male-head-front.jpg" />
@@ -68,8 +55,8 @@ export default {
       sessionStorage.clear();
     },
 
-   async getUserId(){
-       this.user_id = await (sessionStorage.getItem('id'));
+   getUserId(){
+       this.user_id = (sessionStorage.getItem('id'));
   },
   },
   created(){

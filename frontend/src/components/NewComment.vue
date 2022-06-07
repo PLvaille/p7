@@ -34,21 +34,17 @@ export default {
         comment_text: this.comment_text,
         commented_post_id: postId,
       }
-     // console.log(body);
       await axios.post(`http://localhost:3000/api/comment/${postId}`, body, header)
         .then(res => {
           this.alertMsg = "";
           this.succesMessage = `${res.data.message} ✔️`;
-          console.log(res);
           this.$parent.getComments();
           //ràz du contenue text
           this.comment_text = "";
         })
         .catch(error => {
-
           this.alertMsg = error.response.data.message ? (error.response.data.message) : (error.message);
           this.succesMessage = "";
-          console.log(error)
         })
     }
   },
