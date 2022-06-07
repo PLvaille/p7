@@ -41,6 +41,6 @@ CREATE TABLE likes (
 like_id	INT(11) PRIMARY KEY AUTO_INCREMENT UNIQUE NOT NULL,
 like_user_id INT(7) NOT NULL,
 like_post_id INT(9) NOT NULL
-)
+);
 
-INSERT INTO users (user_id, user_password, user_nom, user_prenom, user_img, user_email, user_age, user_service) VALUES ('1', 'Test1234','admin', 'super', '', 'admin@test.com', '42', 'admin');
+INSERT INTO users (user_id, user_password, user_nom, user_prenom, user_email, user_age, user_service) VALUES ('1', 'Test1234','admin', 'super', 'admin@test.com', '42', 'admin');
