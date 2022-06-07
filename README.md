@@ -33,10 +33,8 @@ mkdir images
 
 echo > ".env"
 
-code -r .env
-
 ```
-Now paste the following command lines into your empty .env file and edit DB_PASSWORD with your personal Mysql password, you can also chose your own TOKEN string then save the .env file
+Now open the empty .env file and paste the following command lines into it. You should edit DB_PASSWORD with your personal Mysql password, you can also chose your own TOKEN string, then save the .env file.
 ```bash 
 # MYSQL
 DB_PASSWORD="YourMySqlPassword"
