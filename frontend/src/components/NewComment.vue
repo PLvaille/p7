@@ -6,7 +6,6 @@
     </div>
     <div class="comment--container">
       <span class="alertMessage" v-if="alertMsg">{{ alertMsg }}</span>
-      <span class="succesMessage" v-if="succesMessage">{{ succesMessage }}</span>
     </div>
   </form>
 </template>
@@ -18,8 +17,6 @@ export default {
     return {
       comment_text: "",
       alertMsg: "",
-      succesMessage: "",
-
     }
   },
   props: ['id'],
@@ -35,16 +32,14 @@ export default {
         commented_post_id: postId,
       }
       await axios.post(`http://localhost:3000/api/comment/${postId}`, body, header)
-        .then(res => {
+        .then(() => {
           this.alertMsg = "";
-          this.succesMessage = `${res.data.message} ✔️`;
           this.$parent.getComments();
           //ràz du contenue text
           this.comment_text = "";
         })
         .catch(error => {
           this.alertMsg = error.response.data.message ? (error.response.data.message) : (error.message);
-          this.succesMessage = "";
         })
     }
   },
@@ -52,9 +47,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.succesMessage {
-  margin: 8px auto;
-}
 
 #newComment {
   display: flex;

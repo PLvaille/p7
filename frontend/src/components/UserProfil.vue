@@ -301,8 +301,8 @@ export default {
     justify-content: space-around;
     align-items : center;
     margin: 24px auto;
-    width: 33%;
-    min-width: 280px;
+    width: 30%;
+    min-width: 260px;
     border: 2px solid royalblue;
     border-radius: 24px;
     box-shadow: 3px 1px;

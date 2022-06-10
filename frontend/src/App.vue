@@ -23,6 +23,9 @@ html {
 .alertMessage {
   color: red;
 }
+.succesMessage {
+  color : green;
+}
 
 #connectezvous {
   position: relative;

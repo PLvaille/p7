@@ -108,7 +108,6 @@ export default {
             displayComments: false,
             likesCounter: "",
             isAuthor: false,
-            succesMessage: "",
             alertMsg: "",
             reactAlertMsg: "",
             commentAlertMsg: "",

@@ -18,9 +18,8 @@ You need npm to be installed on your computer. Then in the main project file run
 
 ### # Mysql + DataBase creation 
 Install Mysql on your computer, then copy/paste and run the whole commands from the root file "MySqlCreate.txt" in a new Mysql tab.
-Note : the first user (user_id = 1) is the admin and can remove & edit all the posts & comments.
-You can edit the VALUES to chose your own password & mail etc... 
-Default admin login / password are : admin@test.com  / Test1234 
+Note : the first user created (user_id = 1) will be admin, and can remove & edit all the posts & comments.
+
 
 ### # Backend -
 Now, from the main folder, run this commands :

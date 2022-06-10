@@ -15,7 +15,6 @@
                 <div class="newPost--file--container--btn">
                     <button class="btn" type="submit" id="publishBtn">Poster !</button>
                     <p class="alertMessage" v-if="alertMsg">{{ alertMsg }}</p>
-                    <p class="succesMessage" v-if="succesMessage">{{ succesMessage }}</p>
                 </div>
             </form>
         </form>
@@ -33,7 +32,6 @@ export default {
             post_text: "",
             file: "",
             alertMsg: "",
-            succesMessage: "",
         }
     },
     methods: {
@@ -80,9 +78,6 @@ export default {
 </script>
 
 <style lang="scss">
-.succesMessage {
-    color: green;
-}
 
 .newPost {
     background: linear-gradient(to left, rgb(186, 216, 255), white, rgb(186, 216, 255));
