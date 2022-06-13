@@ -347,7 +347,7 @@ exports.deleteUser = async (req, res) => {
                         DELETE u, c, l FROM users AS u
                         LEFT JOIN comments AS c ON (c.comment_author_id = u.user_id) 
                         LEFT JOIN likes AS l ON (l.like_user_id = u.user_id) 
-                        WHERE user_id = ${req.auth};`)
+                        WHERE user_id = ${userToDelete};`)
                         if (err) {
                             throw err
                         }
