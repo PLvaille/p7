@@ -153,7 +153,6 @@ exports.modifyPost = async (req, res, err) => {
                                 }
                                 else {
                                     //on recupere et supprime l'ancienne img si elle existe
-                                    console.log(resultat[0].post_img);
                                     if(req.file && resultat[0].post_img && resultat[0].post_img != null && resultat[0].post_img != undefined && resultat[0].post_img != ""){
                                     const oldImage = resultat[0].post_img;
                                     fs.unlinkSync(`images/${oldImage}`);

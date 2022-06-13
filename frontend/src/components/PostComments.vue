@@ -309,8 +309,6 @@ export default {
 
                 })
                 .catch(error => {
-
-                    console.log(error);
                     this.commentAlertMsg = error.response.data.message;
                 })
         },
