@@ -4,11 +4,14 @@
         <form class="newPost" id="newPost">
             <h2 class="titre">Dites quelque chose !</h2>
             <form class="newPost--form" @submit="newPost" method="" action="">
+                <label class="formLabel" for="post_title">Titre du post</label>
                 <input class="newPost--title" type="text" v-model="post_title" max-length="100" id="post_title"
                     name="post_title" placeholder="Titre du post">
+                <label class="formLabel" for="post_text">Exprimez-vous</label>
                 <textarea class="newPost--text" v-model="post_text" id="post_text" type="text" max-length="500"
                     name="post_text" placeholder="Dites quelque chose..."></textarea>
                 <div class="newPost--file--container">
+                    <label class="formLabel" for="formFile">Ajouter une image</label><br>
                     <input class="newPost--file--container--file" ref="file" @change="uploadFile()" type="file"
                         id="formFile">
                 </div>
@@ -68,9 +71,9 @@ export default {
                     }
                 })
                 .catch(error => {
-                    this.alertMsg = error.response.data.message ? 
-                    (error.response.data.message) : (error.message) ? 
-                    (error.message) : ("Une erreur est survenue.");
+                    this.alertMsg = error.response.data.message ?
+                        (error.response.data.message) : (error.message) ?
+                            (error.message) : ("Une erreur est survenue.");
                 })
         }
     },
@@ -78,7 +81,10 @@ export default {
 </script>
 
 <style lang="scss">
-
+.formLabel {
+    text-align:center;
+    margin: 4px 0;
+}
 .newPost {
     background: linear-gradient(to left, rgb(186, 216, 255), white, rgb(186, 216, 255));
     border: solid 2px #999;

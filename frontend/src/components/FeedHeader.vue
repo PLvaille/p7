@@ -1,6 +1,8 @@
 <template>
   <div class="header">
+    
     <div class="header--img"></div>
+    <h1>Groupomania</h1> 
     
     <!-- fonctionnalités  à mettre en place : deux bulles <aside> avec les derniers inscrit et les posts les plus commentés -->
 
@@ -66,6 +68,7 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+
 .header {
   &--img {
     margin: 0 auto;
@@ -118,7 +121,7 @@ export default {
       box-shadow: 2px 1px;
       font-weight: bold;
       background: rgb(232, 245, 255);
-      color: royalblue;
+      color: black;
       padding: 12px;
       border: solid 2px royalblue;
       border-radius: 12px;

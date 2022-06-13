@@ -88,7 +88,7 @@ export default {
   text-align: center;
   color: rgb(56, 154, 214);
   padding: 8px;
-  width: 20%;
+  width: 30%;
   min-width: 200px;
 }
 
